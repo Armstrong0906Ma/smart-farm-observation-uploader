@@ -1,0 +1,5474 @@
+# Advantech WISE-PaaS DataHub v2.1.3 Reference
+
+> ?????2026-07-03 UTC  
+> ??????????lang=3?  
+> ???Advantech WISE-PaaS Technical Documentation
+
+## Sources
+
+- API ???<https://docs.wise-paas.advantech.com/zh-tw/Guides_and_API_References/Data_Acquisition/DataHub/1625675528897381813/v2.1.3>
+- WebSocket ???<https://docs.wise-paas.advantech.com/zh-tw/Guides_and_API_References/Data_Acquisition/DataHub/1609822666154124276/v2.1.3>
+
+## AI ????
+
+- DataHub REST API ??? Swagger 2.0/OpenAPI YAML?`basePath` ? `/api`???????? `/v1/...`?
+- WebSocket URL ??? `wss://[DataHub-URL]`??? port ? `443`?
+- WebSocket ???? WISE-PaaS ???? Cookie??? HTTP Request Header ?? `Authorization: Bearer [token]`?
+- WebSocket ????????? client ?????? request ??server ???????????? request ???
+- WebSocket ?????? topic ?? `message: []`?`message: ""`?`message: {}` ? `unsubscribe: true`??? topic `/alarms/recent/req` ??? `unsubscribe: true`?
+
+## ?????? WebSocket Topics
+
+- `/realdata/convert/req`
+- `/realdata/convert/res`
+- `/realdata/raw/req`
+- `/realdata/raw/res`
+- `/status/deviceStatus/req`
+- `/status/deviceStatus/res`
+- `/status/nodeStatus/req`
+- `/status/nodeStatus/res`
+- `/simplejsons/query/req`
+- `/simplejsons/query/res`
+- `/alarms/recent/req`
+- `/alarms/recent/res`
+
+## REST API Metadata
+
+- Title: `API 文件`
+- Version: `v2.1.3`
+- Doc type: `API`
+- Last updated: `2022-11-16T02:15:42Z`
+- File name / doc id: `1625675528897381813` / `5735`
+
+## WebSocket Metadata
+
+- Title: `WebSocket 參考`
+- Version: `v2.1.3`
+- Doc type: `M.D.`
+- Last updated: `2022-11-16T02:15:23Z`
+- File name / doc id: `1609822666154124276` / `4347`
+
+## REST API Endpoint Index
+
+### ActionLog
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `GET` | `/v1/ActionLog` | List/find Action Logs | `ActionLog__v1_0.get` |
+
+### Alarm
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/Alarms` | Create alarm | `Alarm__v1_0.createAlarm` |
+| `GET` | `/v1/Alarms` | List all alarm information. | `Alarm__v1_0.listAllAlarms` |
+| `PUT` | `/v1/Alarms/{alarmId}` | Update the specified alarm information | `Alarm__v1_0.updateAlarm` |
+| `DELETE` | `/v1/Alarms/{alarmId}` | Delete the specified alarm log information | `Alarm__v1_0.deleteAlarm` |
+| `POST` | `/v1/Alarms/data` | Get the data of the specified alarm. | `Alarm__v1_0.getAlarmData` |
+| `POST` | `/v1/Alarms/recent` | Get the recent status of the specified alarms. | `Alarm__v1_0.getAlarmStatus` |
+| `POST` | `/v1/Alarms/syncInstance` | Launch/Close alarm Instance. | `Alarm__v1_0.syncInstance` |
+| `POST` | `/v1/Alarms/ack` | send ack for alarm | `Alarm__v1_0.ackAlarm` |
+| `GET` | `/v1/Alarms/amount` | Get amount of alarms. | `Alarm__v1_0.amount` |
+
+### Auth
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/Auth` | Sign in by account | `Auth__v1_0.ssoAuth` |
+| `POST` | `/v1/Auth/ldap` | Sign in by LDAP account | `Auth__v1_0.ssoAuthLDAP` |
+| `DELETE` | `/v1/Auth/delete` | Sign out | `Auth__v1_0.deleteAuth` |
+
+### Command
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/Command/writeValue` | Send a write value command to the device | `Command__v1_0.writeValue` |
+
+### Device
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `GET` | `/v1/Devices/list/{nodeId}` | List all device Id and device name in the specified NODE | `Device__v1_0.listAllDeviceNameByNode` |
+| `GET` | `/v1/Devices/info` | List all device information | `Device__v1_0.listAllDevice` |
+| `GET` | `/v1/Devices/info/{nodeId}` | List all device information in the specified NODE | `Device__v1_0.listAllDeviceByNode` |
+| `GET` | `/v1/Devices/info/{nodeId}/{deviceId}` | Get the specified device information | `Device__v1_0.listDeviceByDeviceId` |
+| `PUT` | `/v1/Devices/{nodeId}/{deviceId}` | Update the specified Device information | `Device__v1_0.updateDevice` |
+| `DELETE` | `/v1/Devices/{nodeId}/{deviceId}` | Delete the specified Device information | `Device__v1_0.deleteDevice` |
+| `POST` | `/v1/Devices` | Create new devices. | `Device__v1_0.insertDevice` |
+| `POST` | `/v1/Devices/import` | Create device by importing json model | `Device__v1_0.importDevice` |
+
+### HistData
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/HistData/datalog` | Get the history datalog of the specified tags | `HistData__v1_0.getHistDataLog` |
+| `POST` | `/v1/HistData/raw` | Get the historical raw data of the specified tags | `HistData__v1_0.getHistRawData__post_v1_HistData_raw` |
+| `POST` | `/v1/HistData/raw/pagination` | Get the historical raw data of the specified tags with pagination and filter | `HistData__v1_0.getHistRawData__post_v1_HistData_raw_pagination` |
+
+### Node
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/Nodes` | Create new nodes without nodeId, or you can append nodeId for generating credentialKey on existed node. | `Node__v1_0.createNode` |
+| `GET` | `/v1/Nodes/list` | List all Project Id, Node Id and NODE name | `Node__v1_0.listAllNodeName` |
+| `GET` | `/v1/Nodes/info` | List all NODE information | `Node__v1_0.listAllNode` |
+| `GET` | `/v1/Nodes/info/{projectId}` | List NODE information in the specified project | `Node__v1_0.listNodeByProjectId` |
+| `GET` | `/v1/Nodes/info/{projectId}/{nodeId}` | Get the specified NODE information, | `Node__v1_0.listNodeByProjectIdAndNodeId` |
+| `PUT` | `/v1/Nodes/{nodeId}` | Update the specified NODE information | `Node__v1_0.updateNode` |
+| `DELETE` | `/v1/Nodes/{nodeId}` | Delete the specified NODE information | `Node__v1_0.deleteNode` |
+| `POST` | `/v1/Nodes/lock/{nodeId}` | Update the specified NODE Config Lock. | `Node__v1_0.lockNode` |
+| `POST` | `/v1/Nodes/bind` | Bind existing NODEs to project | `Node__v1_0.bindNode` |
+| `POST` | `/v1/Nodes/import` | Create node by importing json model | `Node__v1_0.importNode` |
+
+### Org
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/Orgs` | Create new Orgs | `Org__v1_0.createOrgs` |
+| `GET` | `/v1/Orgs` | Get organization list | `Org__v1_0.getOrgList` |
+| `GET` | `/v1/Orgs/{orgName}` | Get organization information by organization name | `Org__v1_0.getOrgByOrgName` |
+| `PUT` | `/v1/Orgs/{orgName}` | update organization information by organization name | `Org__v1_0.updateOrgInfo` |
+| `DELETE` | `/v1/Orgs/{orgName}` | Delete organization information by organization name | `Org__v1_0.deleteOrg` |
+| `PATCH` | `/v1/Orgs/{orgName}/users/{userName}` | patch user org role | `Org__v1_0.patchUserRole` |
+| `DELETE` | `/v1/Orgs/{orgName}/users/{userName}` | delete user org role | `Org__v1_0.deleteUserRole` |
+
+### Project
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/Projects` | Create new projects | `Project__v1_0.createProject` |
+| `GET` | `/v1/Projects` | List all projects | `Project__v1_0.listAllProjects` |
+| `GET` | `/v1/Projects/{projectId}` | List the specified project information | `Project__v1_0.listProjectById` |
+| `PUT` | `/v1/Projects/{projectId}` | Update an existing project | `Project__v1_0.updateProject` |
+| `DELETE` | `/v1/Projects/{projectId}` | Delete the specified project. | `Project__v1_0.deleteProject` |
+| `POST` | `/v1/Projects/export` | Export the configuration of multiple projects, including the nodes, devices, tags to which they belong | `Project__v1_0.exportProject` |
+| `POST` | `/v1/Projects/import` | Create projects by importing json model | `Project__v1_0.importProject` |
+
+### RealData
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/RealData/raw` | Get the raw data of the specified tags | `RealData__v1_0.getRawValue` |
+| `POST` | `/v1/RealData/convert` | Get the real-time converted data of the specified tags | `RealData__v1_0.getConvertValue` |
+| `POST` | `/v1/RealData/set` | Send a write value command to the device. (This API is deprecated, and will be removed in a future version. Please use /v1/Command/writeValue instead instead.) | `RealData__v1_0.setValue` |
+
+### RetentionPolicy
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/RetentionPolicy` | Create new retention policy | `RetentionPolicy__v1_0.createRetentionPolicy` |
+| `GET` | `/v1/RetentionPolicy` | List all retention policy | `RetentionPolicy__v1_0.listAllRetentionPolicy` |
+| `GET` | `/v1/RetentionPolicy/{name}` | List the specified retention policy information | `RetentionPolicy__v1_0.listRetentionPolicyByName` |
+| `PUT` | `/v1/RetentionPolicy/{name}` | Update an existing retention policy | `RetentionPolicy__v1_0.updateRetentionPolicy` |
+| `DELETE` | `/v1/RetentionPolicy/{name}` | Delete the specified retention policy. | `RetentionPolicy__v1_0.deleteRetentionPolicy` |
+
+### RoleInfo
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/Roles` | Create a new role. | `RoleInfo__v1_0.createRole` |
+| `GET` | `/v1/Roles` | List all the roles and scope level for each role | `RoleInfo__v1_0.listAllRoles` |
+| `GET` | `/v1/Roles/{roleId}` | List the specified role and its scope level | `RoleInfo__v1_0.listRoleById` |
+| `PUT` | `/v1/Roles/{roleId}` | Update an existing role | `RoleInfo__v1_0.updateRole` |
+| `DELETE` | `/v1/Roles/{roleId}` | Delete the specified role | `RoleInfo__v1_0.deleteRole` |
+
+### ScopeInfo
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `GET` | `/v1/Scopes` | List all scopes | `ScopeInfo__v1_0.listAllScope` |
+
+### SimpleJson
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `GET` | `/v1/SimpleJsons` |  | `SimpleJson__v1_0.testTheConnection` |
+| `POST` | `/v1/SimpleJsons/query` |  | `SimpleJson__v1_0.queryHistData` |
+| `POST` | `/v1/SimpleJsons/alarms` |  | `SimpleJson__v1_0.queryAlarm` |
+| `POST` | `/v1/SimpleJsons/searchProject` |  | `SimpleJson__v1_0.queryProject` |
+| `POST` | `/v1/SimpleJsons/searchNode` |  | `SimpleJson__v1_0.queryNode` |
+| `POST` | `/v1/SimpleJsons/searchDevice` |  | `SimpleJson__v1_0.queryDevice` |
+| `POST` | `/v1/SimpleJsons/searchTag` |  | `SimpleJson__v1_0.queryTag` |
+| `POST` | `/v1/SimpleJsons/annotations` |  | `SimpleJson__v1_0.annotations` |
+| `POST` | `/v1/SimpleJsons/setValue` | Send a write value command to the device | `SimpleJson__v1_0.writeValue` |
+
+### Status
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/Statuses/node` | Get the Node status | `Status__v1_0.getNodeStatus` |
+| `POST` | `/v1/Statuses/device` | Get the device status | `Status__v1_0.getDeviceStatus` |
+
+### System
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/System/getParams` | Get system parameters | `System__v1_0.get` |
+| `PUT` | `/v1/System` | Update the specified system parameters | `System__v1_0.update` |
+| `POST` | `/v1/System/users` | Create a new user. | `System__v1_0.createUser` |
+| `GET` | `/v1/System/users` | List all user | `System__v1_0.listAllUser` |
+| `DELETE` | `/v1/System/users/{userName}` | Delete the specified user. | `System__v1_0.deleteUser` |
+| `PUT` | `/v1/System/users/{userName}` | Update an existing user. | `System__v1_0.updateUser` |
+| `GET` | `/v1/System/users/{userName}` | List the specified user information | `System__v1_0.listUserByUserName` |
+| `GET` | `/v1/System/credentials` | List credentials | `System__v1_0.credentials` |
+| `GET` | `/v1/System/status` | List connection status | `System__v1_0.status` |
+
+### Tag
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `GET` | `/v1/Tags/list/{nodeId}/{deviceId}` | List all tag name in the specified device | `Tag__v1_0.listAllTagsName` |
+| `GET` | `/v1/Tags/info/{nodeId}` | List tags information in the specified NODE | `Tag__v1_0.getTagsListWithNode` |
+| `GET` | `/v1/Tags/info/{nodeId}/{deviceId}` | List tags information in the specified device | `Tag__v1_0.getTagsListWithNodeAndDevice` |
+| `GET` | `/v1/Tags/info/{nodeId}/{deviceId}/{tagName}` | Get the specified tag information | `Tag__v1_0.listTagByTagId` |
+| `PUT` | `/v1/Tags/{nodeId}/{deviceId}/{tagName}` | Update the specified tag information | `Tag__v1_0.updateTag` |
+| `DELETE` | `/v1/Tags/{nodeId}/{deviceId}/{tagName}` | Delete the specified tag information | `Tag__v1_0.deleteTag` |
+| `POST` | `/v1/Tags` | Create new tags | `Tag__v1_0.insertTag` |
+
+### Token
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `GET` | `/v1/Tokens` | Refresh token | `Token__v1_0.refreshToken` |
+
+### UserInfo
+
+| Method | Path | Summary | Operation ID |
+|---|---|---|---|
+| `POST` | `/v1/Users` | Create a new user. | `UserInfo__v1_0.createUser` |
+| `GET` | `/v1/Users` | List all user | `UserInfo__v1_0.listAllUser` |
+| `GET` | `/v1/Users/me` | List self information | `UserInfo__v1_0.listSelf` |
+| `POST` | `/v1/Users/me/switchOrg` | switch current org | `UserInfo__v1_0.switchCurrentOrg` |
+| `GET` | `/v1/Users/resetPassword` | reset Password, follow the steps of the email content which you will receive. | `UserInfo__v1_0.resetPassword` |
+| `GET` | `/v1/Users/{userName}` | List the specified user information | `UserInfo__v1_0.listUserByUserName` |
+| `PUT` | `/v1/Users/{userName}` | Update an existing user. | `UserInfo__v1_0.updateUser` |
+| `DELETE` | `/v1/Users/{userName}` | Delete the specified user. | `UserInfo__v1_0.deleteUser` |
+| `POST` | `/v1/Users/{userName}/device` | Create new device access permission | `UserInfo__v1_0.insertUserDevice` |
+| `GET` | `/v1/Users/{userName}/device` | Get the devices that user can access | `UserInfo__v1_0.getUserDevice` |
+| `PUT` | `/v1/Users/{userName}/device` | Update device access permission | `UserInfo__v1_0.updateUserDevice` |
+| `DELETE` | `/v1/Users/{userName}/device` | Delete user's device access permission | `UserInfo__v1_0.deleteUserDevice` |
+
+## WebSocket Reference ????
+
+**WebSocket URL 為 wss://[ DataHub-URL ]**
+
+*  例如：Datahub URL: https://portal-datahub-datahub-eks008.sa.wise-paas.com 則 WebSocket URL 為: wss://portal-datahub-datahub-eks008.sa.wise-paas.com
+
+*    預設 port: 443
+
+# 權限驗證
+
+**使用 WebSocket 時權限驗證可以使用以下兩種方式，選擇其中之一驗證即可。**
+
+*  前端整合使用 Cookie 驗證: 已登入 WISE-PaaS，EIToken 被設置至 cookie，可以直接使用
+
+*  後端整合使用 HTTP Request Header 驗證: 將 header 設置 Authorization: Bearer [ 你的 token ]
+例如： Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJjb3VudHJ5IjoiIiwiY3JlYXRpb25UaW1lIjoxNTg0NDk4MDU0LCJleHAiOjE1ODgwNTg2ODAsImZpcnN0TmFtZSI6IlVzZXIiLCJpYXQiOjE1ODgwNTUwODAsImlkIjoiOTQwODU0NzgtOTk1MS00MGZiLWJiMDAtNjg3YzlhZDIyMjA0IiwiaXNzIjoid2lzZS1wYWFzIiwibGFzdE1vZGlmaWVkVGltZSI6MTU4Njc2NzQyNCwibGFzdE5hbWUiOiJBcHAiLCJyZWZyZXNoVG9rZW4iOiJmMGNkNDAxOC04OTE4LTExZWEtODliOC1hMjhjMzQ2NmQwNDEiLCJzdGF0dXMiOiJBY3RpdmUiLCJ1c2VybmFtZSI6ImdhcnkucGFuQGFkdmFudGVjaC5jb20udHcifQ.H94wl4Yz9LyiHaRWAashuVGC2H95TlJfW1i481fry4Vik---
+
+# Real Data - Convert
+
+**訂閱**
+
+*    用途: 取得訂閱點即時值 ( 根據 Config 配置轉換後的值 )
+
+*   Request Message Format:
+```json
+
+{
+   "topic":"/realdata/convert/req",
+   "message":[
+      {
+         "nodeId":"92c5ed2c-ecfd-4ceb-9566-5525372b979e",
+         "deviceId":"Device1",
+         "tagName":"ATag1"
+      },
+      {
+         "nodeId":"92c5ed2c-ecfd-4ceb-9566-5525372b979e",
+         "deviceId":"Device1",
+         "tagName":"ATag10"
+      }
+   ]
+}  
+
+```
+
+**更新訂閱**
+
+*   將欲更新訂閱點的資訊，再一次發送 Request Message，Server 會清除上一次訂閱的所有點，以最後一次發送的 Request Message 進行訂閱
+
+*   例如：上一次訂閱的點為 ATag1、ATag2、ATag3，欲更新的點為 ATag2、ATag3、ATag4，發送 Request Message 至 Server 後，Server 將清除 ATag1、ATag2、ATag3，將以 ATag2、ATag3、ATag4 加入訂閱資訊中
+
+**取消訂閱**
+
+*   用途: 取消此 Client 所有訂閱即時點資訊 ( 將不會收到即時點改變的通知 )
+
+*    Message Format: 以下幾種 Format 皆支援，選擇其一即可
+
+```json
+
+{
+   "topic":"/realdata/convert/req",
+   "message":[]
+}
+```
+
+```json
+
+{
+   "topic":"/realdata/convert/req",
+   "message":""
+}
+```
+```json
+{
+   "topic":"/realdata/convert/req",
+   "message":{}
+}
+```
+```json
+{
+   "topic":"/realdata/convert/req",
+   "unsubscribe":true"
+}
+
+```
+
+ 
+
+**返回結果**
+
+Response Message Format:
+
+```json
+
+ {
+   "topic":"/realdata/convert/res",
+   "message":[
+      {
+         "nodeId":"92c5ed2c-ecfd-4ceb-9566-5525372b979e",
+         "deviceId":"Device1",
+         "tagName":"ATag1",
+         "value":24,
+         "ts":"2020-04-07T06:50:05.805Z",
+         "engUnit":""
+      },
+      {
+         "nodeId":"92c5ed2c-ecfd-4ceb-9566-5525372b979e",
+         "deviceId":"Device1",
+         "tagName":"ATag10",
+         "value":42,
+         "ts":"2020-04-07T06:50:05.805Z",
+         "engUnit":""
+      }
+   ]
+}
+```
+
+# Real Data - Raw
+
+**訂閱**
+
+*   2.0.4 以上版本才支援
+
+*  用途: 取得訂閱點即時值 ( 原始 raw data )
+
+*    Request Message Format:
+
+```json
+{
+   "topic":"/realdata/raw/req",
+   "message":[
+      {
+         "nodeId":"92c5ed2c-ecfd-4ceb-9566-5525372b979e",
+         "deviceId":"Device1",
+         "tagName":"ATag1"
+      },
+      {
+         "nodeId":"92c5ed2c-ecfd-4ceb-9566-5525372b979e",
+         "deviceId":"Device1",
+         "tagName":"ATag10"
+      }
+   ]
+}
+```
+
+
+**更新訂閱**
+
+*  將欲更新訂閱點的資訊，再一次發送 Request Message，Server 會清除上一次訂閱的所有點，以最後一次發送的 Request Message 進行訂閱
+
+*  例如： 上一次訂閱的點為 ATag1、ATag2、ATag3，欲更新的點為 ATag2、ATag3、ATag4，發送 Request Message 至 Server 後，Server 將清除 ATag1、ATag2、ATag3，將以 ATag2、ATag3、ATag4 加入訂閱資訊中
+
+**取消訂閱**
+
+*   用途: 取消此 Client 所有訂閱即時點資訊 ( 將不會收到即時點改變的通知 )
+
+*   Request Message Format：以下幾種 Format 皆支援，選擇其一即可
+
+ ```json
+{
+   "topic":"/realdata/raw/req",
+   "message":[]
+}
+```
+
+ ```json
+{
+   "topic":"/realdata/raw/req",
+   "message":""
+}
+```
+
+ ```json
+{
+   "topic":"/realdata/raw/req",
+   "message":{}
+}
+```
+
+ ```json
+{
+   "topic":"/realdata/raw/req",
+   "unsubscribe":true
+}
+ ```
+
+ 
+
+**返回結果**
+
+Response Message Format:
+
+ ```json
+{
+   "topic":"/realdata/raw/res",
+   "message":[
+      {
+         "nodeId":"92c5ed2c-ecfd-4ceb-9566-5525372b979e",
+         "deviceId":"Device1",
+         "tagName":"ATag1",
+         "value":24,
+         "ts":"2020-04-07T06:50:05.805Z"
+      },
+      {
+         "nodeId":"92c5ed2c-ecfd-4ceb-9566-5525372b979e",
+         "deviceId":"Device1",
+         "tagName":"ATag10",
+         "value":42,
+         "ts":"2020-04-07T06:50:05.805Z"
+      }
+   ]
+}
+ ```
+
+# Device Status
+
+**訂閱**
+
+*   用途: 取得訂閱的 Device 狀態
+
+*    Request Message Format:
+
+ ```json
+{
+   "topic":"/status/deviceStatus/req",
+   "message":[
+      {
+         "nodeId":"a511dc74-0848-455f-8314-e82a411f5647",
+         "deviceId":"Device1"
+      },
+      {
+         "nodeId":"a511dc74-0848-455f-8314-e82a411f5647",
+         "deviceId":"Device2"
+      }
+   ]
+}
+ ```
+
+**更新訂閱**
+
+*    將欲更新訂閱設備狀態的資訊，再一次發送 Request Message，Server 會清除上一次訂閱的所有設備資訊，以最後一次發送的 Request Message 進行訂閱
+
+*    例如： 上一次訂閱的設備為 Device1、Device2，欲更新的設備為 Device2、Device3，發送 Request 至Server 後，Server 將清除 Device1、Device2，將以 Device2、Device3 加入訂閱資訊中
+
+**取消訂閱**
+
+*  用途: 取消此 Client 所有訂閱設備狀態資訊 ( 將不會收到設備狀態改變的通知 )
+
+*   Message Format：以下幾種 Format 皆支援，選擇其一即可                                    
+```json
+{
+   "topic":"/status/deviceStatus/req",
+   "message":[]
+}
+```
+
+```json
+{
+   "topic":"/status/deviceStatus/req",
+   "message":""
+}
+```
+
+```json
+{
+   "topic":"/status/deviceStatus/req",
+   "message":{}
+}
+```
+
+```json
+{
+   "topic":"/status/deviceStatus/req",
+   "unsubscribe":true
+}
+```
+
+**返回結果**
+
+Response Message Format:
+
+ ```json
+{
+   "topic":"/status/deviceStatus/res",
+   "message":[
+      {
+         "nodeId":"a511dc74-0848-455f-8314-e82a411f5647",
+         "deviceId":"Device1",
+         "status":false
+      },
+      {
+         "nodeId":"a511dc74-0848-455f-8314-e82a411f5647",
+         "deviceId":"Device2",
+         "status":false
+      }
+   ]
+}
+ ```
+
+# Node Status
+
+**訂閱**
+
+*  用途: 取得訂閱的 Node 狀態
+
+*  Request Message Format:
+
+ ```json
+ {
+   "topic":"/status/nodeStatus/req",
+   "message":[
+      {
+         "nodeId":"92c5ed2c-ecfd-4ceb-9566-5525372b979e"
+      },
+      {
+         "nodeId":"a511dc74-0848-455f-8314-e82a411f5647"
+      }
+   ]
+}
+ ```
+
+**更新訂閱**
+
+*   將欲更新訂閱 Node 狀態資訊，再一次發送 Request Message，Server 會清除上一次訂閱的所有 Node 狀態，以最後一次發送的 Request Message 進行訂閱
+
+*    例如：上一次訂閱的 NodeId 為 92c5ed2c-ecfd-4ceb-9566-5525372b979e，欲更新的 NodeId 為 a511dc74-0848-455f-8314-e82a411f5647，發送 Request Message 至 Server 後，Server 將清除 92c5ed2c-ecfd-4ceb-9566-5525372b979e，將以 a511dc74-0848-455f-8314-e82a411f5647 加入訂閱資訊中
+
+**取消訂閱**
+
+*   用途: 取消此 Client 所有訂閱 Node 狀態資訊 ( 將不會收到 Node 狀態改變的通知 )
+
+*    Request Message Format：以下幾種 Format 皆支援，選擇其一即可 
+
+```json
+{
+   "topic":"/status/nodeStatus/req",
+   "message":[]
+}
+```
+
+```json
+{
+   "topic":"/status/nodeStatus/req",
+   "message":""
+}
+```
+
+```json
+{
+   "topic":"/status/nodeStatus/req",
+   "message":{}
+}
+```
+
+```json
+{
+   "topic":"/status/nodeStatus/req",
+   "unsubscribe":true   
+}
+```
+
+**返回結果**
+
+Response Message Format:
+
+ ```json
+{
+   "topic":"/status/nodeStatus/res",
+   "message":[
+      {
+         "nodeId":"92c5ed2c-ecfd-4ceb-9566-5525372b979e",
+         "status":false,
+         "modified":false
+      },
+      {
+         "nodeId":"a511dc74-0848-455f-8314-e82a411f5647",
+         "status":false,
+         "modified":false
+      }
+   ]
+}
+ ```
+
+# SimpleJsons
+
+**訂閱**
+
+*   用途: 取得訂閱點的即時值，返回 SimpleJson 格式。注：DataType 目前只支援 real
+
+*    Request Message Format: 
+
+ ```json
+{
+   "topic":"/simplejsons/query/req",
+   "message":{
+      "targets":[
+         {
+            "displayName":"ATag1",
+            "target":"grafana#0d58d40e-6d1f-4a27-abc7-153eae216e4b#Device1#ATag1",
+            "dataType":"real",
+            "project":"grafana",
+            "node":"0d58d40e-6d1f-4a27-abc7-153eae216e4b",
+            "device":"Device1",
+            "tag":"ATag1"
+         },
+         {
+            "displayName":"ATag2",
+            "target":"grafana#0d58d40e-6d1f-4a27-abc7-153eae216e4b#Device1#ATag2",
+            "dataType":"real",
+            "project":"grafana",
+            "node":"0d58d40e-6d1f-4a27-abc7-153eae216e4b",
+            "device":"Device1",
+            "tag":"ATag2"
+         }
+      ],
+      "range":{
+         "from":"2020-04-27T06:27:10.578Z",
+         "to":"2020-04-27T06:27:10.578Z"
+      },
+      "intervalMs":3000,
+      "interval":"30s"
+   }
+}
+ ```
+
+**更新訂閱**
+
+*   將欲更新訂閱點的資訊，再一次發送 Request Message，Server 會清除上一次訂閱的所有點，以最後一次發送的 Request Message 進行訂閱
+
+*   例如：上一次訂閱的點為 ATag1、ATag2、ATag3，欲更新的點為 ATag2、ATag3、ATag4，發送 Request Message 至 Server 後，Server 將清除 ATag1、ATag2、ATag3，將以 ATag2、ATag3、ATag4 加入訂閱資訊中
+
+**取消訂閱**
+
+*   用途: 取消此 Client 所有訂閱即時點資訊 ( 將不會收到即時點改變的通知 )
+
+*    Message Format：以下幾種 Format 皆支援，選擇其一即可
+
+ ```json
+{
+   "topic":"/simplejsons/query/req",
+   "message":[]
+}
+ ```
+
+ ```json
+{
+   "topic":"/simplejsons/query/req",
+   "message":""
+}
+ ```
+
+ ```json
+{
+   "topic":"/simplejsons/query/req",
+   "message":{}
+}
+ ```
+
+ ```json
+{
+   "topic":"/simplejsons/query/req",
+   "unsubscribe":true
+}
+ ```
+
+**返回結果**
+
+Response Message Format:
+
+ ```json
+{
+   "topic":"/simplejsons/query/res",
+   "message":[
+      {
+         "target":"grafana#0d58d40e-6d1f-4a27-abc7-153eae216e4b#Device1#ATag1",
+         "node":"0d58d40e-6d1f-4a27-abc7-153eae216e4b",
+         "device":"Device1",
+         "tag":"ATag1",
+         "datapoints":[
+            [
+               91,
+               1587972575722
+            ]
+         ]
+      },
+      {
+         "target":"grafana#0d58d40e-6d1f-4a27-abc7-153eae216e4b#Device1#ATag2",
+         "node":"0d58d40e-6d1f-4a27-abc7-153eae216e4b",
+         "device":"Device1",
+         "tag":"ATag2",
+         "datapoints":[
+            [
+               52,
+               1587972575722
+            ]
+         ]
+      }
+   ]
+}
+ ```
+
+# Alarms
+
+**訂閱**
+
+*   2.0.4 以上版本才支援
+
+*   用途: 取得該使用者，有權限監測的即時警報資訊
+
+*   Request Message Format:
+
+ ```json
+{
+   "topic":"/alarms/recent/req",
+   "message":""
+}
+ ```
+
+ 
+
+**取消訂閱**
+
+*   用途: 取消此 client 所有有權限監測的即時警報資訊
+
+*   Request Message Format 只支援以下這種模式
+
+```json
+{
+   "topic":"/alarms/recent/req",
+   "unsubscribe":true   
+}
+```
+
+**返回結果**
+
+Response Message Format:
+
+
+```json
+{
+   "topic":"/alarms/recent/res",
+   "message":{
+      "count":2,
+      "list":[
+         {
+            "alarmId":"dgcoUDhtVnlw",
+            "nodeId":"2987dba5-ee99-45f0-b0ee-a02b81ca5a73",
+            "deviceId":"Device1",
+            "tagName":"ATag1",
+            "value":60,
+            "ts":"2020-04-15T08:58:39.384Z",
+            "acked":true,
+            "ackTs":"2020-05-06T01:35:38.943Z",
+            "nodeName":"test",
+            "deviceName":"Device 1",
+            "code":"test3",
+            "message":"test3"
+         },
+         {
+            "alarmId":"dgcoUDhtVnlw",
+            "nodeId":"2987dba5-ee99-45f0-b0ee-a02b81ca5a73",
+            "deviceId":"Device1",
+            "tagName":"ATag10",
+            "value":77,
+            "ts":"2020-04-15T08:58:39.384Z",
+            "acked":true,
+            "ackTs":"2020-05-06T01:35:40.045Z",
+            "nodeName":"test",
+            "deviceName":"Device 1",
+            "code":"test3",
+            "message":"test3"
+         }
+      ]
+   }
+}
+```
+# 範例代碼
+
+*  前端整合使用 Cookie 驗證的範例代碼：[https://github.com/advwacloud/datahub-websocket-frontend-sample](https://github.com/advwacloud/datahub-websocket-frontend-sample.git)（注意:本範例代碼需要部署在服務中方可獲取 Cookie 並使用）
+*  後端整合使用 HTTP Request Header 驗證的範例代碼：[https://github.com/advwacloud/datahub-websocket-backend-sample](https://github.com/advwacloud/datahub-websocket-backend-sample.git)
+
+## REST API OpenAPI YAML ??
+
+```yaml
+swagger: '2.0'
+info:
+  version: 2.1.3
+  title: DataHub API
+basePath: /api
+paths:
+  /v1/Projects:
+    post:
+      tags:
+        - Project
+      summary: Create new projects
+      operationId: Project__v1_0.createProject
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+        - name: data
+          in: body
+          description: project instance
+          required: true
+          schema:
+            description: project instance
+            type: array
+            items:
+              $ref: '#/definitions/ProjectModel__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProjectModel__v1_0'
+      deprecated: false
+    get:
+      tags:
+        - Project
+      summary: List all projects
+      operationId: Project__v1_0.listAllProjects
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+        - name: count
+          in: query
+          description: 'Data retrived. limit: 1000'
+          required: false
+          default: 1000
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          default: 1
+          type: number
+          format: double
+        - name: projectId
+          in: query
+          description: Filter by project Id
+          required: false
+          type: string
+        - name: projectName
+          in: query
+          description: Filter by project Name
+          required: false
+          type: string
+        - name: description
+          in: query
+          description: Filter by project description
+          required: false
+          type: string
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/ProjectCount__v1_0'
+      deprecated: false
+  '/v1/Projects/{projectId}':
+    get:
+      tags:
+        - Project
+      summary: List the specified project information
+      operationId: Project__v1_0.listProjectById
+      parameters:
+        - name: projectId
+          in: path
+          description: Project Id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/ProjectModel__v1_0'
+      deprecated: false
+    put:
+      tags:
+        - Project
+      summary: Update an existing project
+      operationId: Project__v1_0.updateProject
+      parameters:
+        - name: projectId
+          in: path
+          description: Project Id
+          required: true
+          type: string
+        - name: data
+          in: body
+          description: project instance
+          required: true
+          schema:
+            description: project instance
+            $ref: '#/definitions/ProjectUpdateInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    delete:
+      tags:
+        - Project
+      summary: Delete the specified project.
+      operationId: Project__v1_0.deleteProject
+      parameters:
+        - name: projectId
+          in: path
+          description: Project Id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SyncRes__v1_0'
+      deprecated: false
+  /v1/Projects/export:
+    post:
+      tags:
+        - Project
+      summary: 'Export the configuration of multiple projects, including the nodes, devices, tags to which they belong'
+      operationId: Project__v1_0.exportProject
+      parameters:
+        - name: data
+          in: body
+          description: projectId array
+          required: true
+          schema:
+            description: projectId array
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/ProjectExportRes__v1_0'
+      deprecated: false
+  /v1/Projects/import:
+    post:
+      tags:
+        - Project
+      summary: Create projects by importing json model
+      operationId: Project__v1_0.importProject
+      parameters:
+        - name: data
+          in: body
+          description: |
+
+            model: json string used for import projects
+            async: Use async strategy to import projects, suitable for importing a large number of configs
+          required: true
+          schema:
+            description: |
+
+              model: json string used for import projects
+              async: Use async strategy to import projects, suitable for importing a large number of configs
+            $ref: '#/definitions/ProjectImportReq__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProjectModel__v1_0'
+      deprecated: false
+  /v1/Nodes:
+    post:
+      tags:
+        - Node
+      summary: 'Create new nodes without nodeId, or you can append nodeId for generating credentialKey on existed node.'
+      operationId: Node__v1_0.createNode
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+        - name: data
+          in: body
+          description: |-
+            NODE instance, if you need to generate credentialKey on existed node, you need to set nodeId.
+            nodeType: gateway|device
+          required: true
+          schema:
+            description: |-
+              NODE instance, if you need to generate credentialKey on existed node, you need to set nodeId.
+              nodeType: gateway|device
+            type: array
+            items:
+              $ref: '#/definitions/NodeInsertInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/NodeInsertResponse__v1_0'
+      deprecated: false
+  /v1/Nodes/list:
+    get:
+      tags:
+        - Node
+      summary: 'List all Project Id, Node Id and NODE name'
+      operationId: Node__v1_0.listAllNodeName
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/NodeList__v1_0'
+      deprecated: false
+  /v1/Nodes/info:
+    get:
+      tags:
+        - Node
+      summary: 'List all NODE information '
+      operationId: Node__v1_0.listAllNode
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+        - name: count
+          in: query
+          description: 'Data retrived. limit: 1000'
+          required: false
+          default: 1000
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          default: 1
+          type: number
+          format: double
+        - name: nodeName
+          in: query
+          description: Filter Node Name
+          required: false
+          type: string
+        - name: description
+          in: query
+          description: Filter Node Description
+          required: false
+          type: string
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/NodeCount__v1_0'
+      deprecated: false
+  '/v1/Nodes/info/{projectId}':
+    get:
+      tags:
+        - Node
+      summary: List NODE information in the specified project
+      operationId: Node__v1_0.listNodeByProjectId
+      parameters:
+        - name: projectId
+          in: path
+          description: project Id
+          required: true
+          type: string
+        - name: count
+          in: query
+          description: 'Data retrived. limit: 1000'
+          required: false
+          default: 1000
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          default: 1
+          type: number
+          format: double
+        - name: nodeName
+          in: query
+          description: Filter Node Name
+          required: false
+          type: string
+        - name: description
+          in: query
+          description: Filter Node Description
+          required: false
+          type: string
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/NodeModel__v1_0'
+      deprecated: false
+  '/v1/Nodes/info/{projectId}/{nodeId}':
+    get:
+      tags:
+        - Node
+      summary: 'Get the specified NODE information, '
+      operationId: Node__v1_0.listNodeByProjectIdAndNodeId
+      parameters:
+        - name: projectId
+          in: path
+          description: project Id
+          required: true
+          type: string
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: model
+          in: query
+          description: show model or not.
+          required: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/NodeModel__v1_0'
+      deprecated: false
+  '/v1/Nodes/{nodeId}':
+    put:
+      tags:
+        - Node
+      summary: Update the specified NODE information
+      operationId: Node__v1_0.updateNode
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: data
+          in: body
+          description: NODE object
+          required: true
+          schema:
+            description: NODE object
+            $ref: '#/definitions/NodeUpdateInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    delete:
+      tags:
+        - Node
+      summary: Delete the specified NODE information
+      operationId: Node__v1_0.deleteNode
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/SyncRes__v1_0'
+      deprecated: false
+  '/v1/Nodes/lock/{nodeId}':
+    post:
+      tags:
+        - Node
+      summary: Update the specified NODE Config Lock.
+      operationId: Node__v1_0.lockNode
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: data
+          in: body
+          description: NODE object
+          required: true
+          schema:
+            description: NODE object
+            $ref: '#/definitions/NodeLockInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/Nodes/bind:
+    post:
+      tags:
+        - Node
+      summary: Bind existing NODEs to project
+      operationId: Node__v1_0.bindNode
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+        - name: data
+          in: body
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/BindNodeInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/Nodes/import:
+    post:
+      tags:
+        - Node
+      summary: Create node by importing json model
+      operationId: Node__v1_0.importNode
+      parameters:
+        - name: data
+          in: body
+          description: ''
+          required: true
+          schema:
+            $ref: '#/definitions/NodeImportReq__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: object
+      deprecated: false
+  '/v1/Devices/list/{nodeId}':
+    get:
+      tags:
+        - Device
+      summary: List all device Id and device name in the specified NODE
+      operationId: Device__v1_0.listAllDeviceNameByNode
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/DeviceListCount__v1_0'
+      deprecated: false
+  /v1/Devices/info:
+    get:
+      tags:
+        - Device
+      summary: List all device information
+      operationId: Device__v1_0.listAllDevice
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+        - name: count
+          in: query
+          description: 'Data retrived. limit: 1000'
+          required: false
+          default: 1000
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          default: 1
+          type: number
+          format: double
+        - name: deviceName
+          in: query
+          description: Filter Device Name
+          required: false
+          type: string
+        - name: description
+          in: query
+          description: Filter Device Description
+          required: false
+          type: string
+        - name: filter
+          in: query
+          description: Select a specific field
+          required: false
+          type: string
+        - name: paging
+          in: query
+          description: paging result or not
+          required: false
+          default: true
+          type: boolean
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/DeviceCount__v1_0'
+      deprecated: false
+  '/v1/Devices/info/{nodeId}':
+    get:
+      tags:
+        - Device
+      summary: List all device information in the specified NODE
+      operationId: Device__v1_0.listAllDeviceByNode
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: count
+          in: query
+          description: 'Data retrived. limit: 1000'
+          required: false
+          default: 1000
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          default: 1
+          type: number
+          format: double
+        - name: deviceName
+          in: query
+          description: Filter Device Name
+          required: false
+          type: string
+        - name: description
+          in: query
+          description: Filter Device Description
+          required: false
+          type: string
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/DeviceCount__v1_0'
+      deprecated: false
+  '/v1/Devices/info/{nodeId}/{deviceId}':
+    get:
+      tags:
+        - Device
+      summary: Get the specified device information
+      operationId: Device__v1_0.listDeviceByDeviceId
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: deviceId
+          in: path
+          description: Device Id
+          required: true
+          type: string
+        - name: model
+          in: query
+          description: show model or not.
+          required: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/DeviceDetail__v1_0'
+      deprecated: false
+  '/v1/Devices/{nodeId}/{deviceId}':
+    put:
+      tags:
+        - Device
+      summary: Update the specified Device information
+      operationId: Device__v1_0.updateDevice
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: deviceId
+          in: path
+          description: Device Id
+          required: true
+          type: string
+        - name: data
+          in: body
+          description: Device object
+          required: true
+          schema:
+            description: Device object
+            $ref: '#/definitions/DeviceUpdateInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    delete:
+      tags:
+        - Device
+      summary: Delete the specified Device information
+      operationId: Device__v1_0.deleteDevice
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: deviceId
+          in: path
+          description: Device Id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/Devices:
+    post:
+      tags:
+        - Device
+      summary: Create new devices.
+      operationId: Device__v1_0.insertDevice
+      parameters:
+        - name: data
+          in: body
+          description: device instance parameters. deviceId is optional.
+          required: true
+          schema:
+            description: device instance parameters. deviceId is optional.
+            type: array
+            items:
+              $ref: '#/definitions/DeviceInsert__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/DeviceInsertResponse__v1_0'
+      deprecated: false
+  /v1/Devices/import:
+    post:
+      tags:
+        - Device
+      summary: Create device by importing json model
+      operationId: Device__v1_0.importDevice
+      parameters:
+        - name: data
+          in: body
+          description: ''
+          required: true
+          schema:
+            $ref: '#/definitions/DeviceImportReq__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: object
+      deprecated: false
+  '/v1/Tags/list/{nodeId}/{deviceId}':
+    get:
+      tags:
+        - Tag
+      summary: List all tag name in the specified device
+      operationId: Tag__v1_0.listAllTagsName
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: deviceId
+          in: path
+          description: Device Id
+          required: true
+          type: string
+        - name: count
+          in: query
+          description: 'Data retrived. limit: 1000'
+          required: false
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          type: number
+          format: double
+        - name: description
+          in: query
+          description: Filter Tag Description
+          required: false
+          type: string
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+        - name: tagType
+          in: query
+          description: 'Filter by tag type. e.g. 1,2,3,4. it means to filter tag type which is analog, discrete, text, calculation.'
+          required: false
+          type: string
+        - name: isArrayTag
+          in: query
+          description: Filter by ArrayTag
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/TagListCount__v1_0'
+      deprecated: false
+  '/v1/Tags/info/{nodeId}':
+    get:
+      tags:
+        - Tag
+      summary: List tags information in the specified NODE
+      operationId: Tag__v1_0.getTagsListWithNode
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: count
+          in: query
+          description: 'Data retrived. limit: 1000'
+          required: false
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          type: number
+          format: double
+        - name: description
+          in: query
+          description: Filter Tag Description
+          required: false
+          type: string
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+        - name: tagType
+          in: query
+          description: 'Filter by tag type. e.g. 1,2,3,4. it means to filter tag type which is analog, discrete, text, calculation.'
+          required: false
+          type: string
+        - name: isArrayTag
+          in: query
+          description: Filter by ArrayTag
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/TagCount__v1_0'
+      deprecated: false
+  '/v1/Tags/info/{nodeId}/{deviceId}':
+    get:
+      tags:
+        - Tag
+      summary: List tags information in the specified device
+      operationId: Tag__v1_0.getTagsListWithNodeAndDevice
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: deviceId
+          in: path
+          description: Device Id
+          required: true
+          type: string
+        - name: count
+          in: query
+          description: 'Data retrived. limit: 1000'
+          required: false
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          type: number
+          format: double
+        - name: tagName
+          in: query
+          description: Filter Tag Name
+          required: false
+          type: string
+        - name: description
+          in: query
+          description: Filter Tag Description
+          required: false
+          type: string
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+        - name: tagType
+          in: query
+          description: 'Filter by tag type. e.g. 1,2,3,4. it means to filter tag type which is analog, discrete, text, calculation.'
+          required: false
+          type: string
+        - name: isArrayTag
+          in: query
+          description: Filter by ArrayTag
+          required: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/TagCount__v1_0'
+      deprecated: false
+  '/v1/Tags/info/{nodeId}/{deviceId}/{tagName}':
+    get:
+      tags:
+        - Tag
+      summary: Get the specified tag information
+      operationId: Tag__v1_0.listTagByTagId
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: deviceId
+          in: path
+          description: Device Id
+          required: true
+          type: string
+        - name: tagName
+          in: path
+          description: Tag Name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/TagInfoObj__v1_0'
+      deprecated: false
+  '/v1/Tags/{nodeId}/{deviceId}/{tagName}':
+    put:
+      tags:
+        - Tag
+      summary: Update the specified tag information
+      operationId: Tag__v1_0.updateTag
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: deviceId
+          in: path
+          description: Device Id
+          required: true
+          type: string
+        - name: tagName
+          in: path
+          description: Tag Name
+          required: true
+          type: string
+        - name: data
+          in: body
+          description: Update attribute is optional
+          required: true
+          schema:
+            description: Update attribute is optional
+            $ref: '#/definitions/TagUpdateInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    delete:
+      tags:
+        - Tag
+      summary: Delete the specified tag information
+      operationId: Tag__v1_0.deleteTag
+      parameters:
+        - name: nodeId
+          in: path
+          description: Node Id
+          required: true
+          type: string
+        - name: deviceId
+          in: path
+          description: Device Id
+          required: true
+          type: string
+        - name: tagName
+          in: path
+          description: Tag Name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/Tags:
+    post:
+      tags:
+        - Tag
+      summary: Create new tags
+      operationId: Tag__v1_0.insertTag
+      parameters:
+        - name: data
+          in: body
+          description: "\nnodeId: id of node\ndeviceId: id of device\ntagName: name of tag\ntagType: type of tag. analog=1, discrete=2, text=3, calculation=4\ndescription: description of tag\nreadOnly: the tag value can be modified or not\narraySize: the property for array tag. set the size of array tag\n\nengUnit (type of analog): engineering unit\nspanHigh (type of analog): the high limit of the tag range\nspanLow (type of analog): the low limit of the tag range\nfraDspFmt (type of analog): number of digits display of fraction point\nstate0 (type of discrete): the meaning when value equal to 0\nstate1 (type of discrete): the meaning when value equal to 1\nstate2 (type of discrete): the meaning when value equal to 2\nstate3 (type of discrete): the meaning when value equal to 3\nstate4 (type of discrete): the meaning when value equal to 4\nstate5 (type of discrete): the meaning when value equal to 5\nstate6 (type of discrete): the meaning when value equal to 6\nstate7 (type of discrete): the meaning when value equal to 7\nformula (type of calculation): formula for calculating among tags\r\n\n&ndash; formula support a special function hist({TagAlias},n[s|m|h]). hist provides to get the history tag value of \"n\" seconds(s)/minutes(m)/hours(h) before, n must in  1 to 65535.\n&ndash; e.g. formula:\"{TagAlias1} - hist({TagAlias1}, 15s)\" - it means to use the current value of TagAlias1 to minus TagAlias1 value of 15 seconds before.\ninterval (type of calculation): execute formula calculating interval, ex. 1s, 1m, 1h, the range of number is 1 to 65535.\nstartAt (type of calculation): the start time to execute formula calculating\nenable (type of calculation): turn on/off calculating\ntags (type of calculation): tags which participate formula calculating\n\n---\n# Example - Create Analog Tag\n```\r\n[\r\n  {\r\n    \"nodeId\": \"17fb2905-72e1-4102-92cc-43150625b787\",\r\n    \"deviceId\": \"Device1\",\r\n    \"tagName\": \"ATag1\",\r\n    \"tagType\": 1,\r\n    \"description\": \"analog tag 1\",\r\n    \"readOnly\": true,\r\n    \"arraySize\": 0,\r\n    \"engUnit\": \"mV\",\r\n    \"fraDspFmt\": 0,\r\n    \"spanHigh\": 1000,\r\n    \"spanLow\": 0\r\n  }\n]\n```\n\n\n# Example - Create Discrete Tag\n```\r\n[\r\n  {\r\n    \"nodeId\": \"17fb2905-72e1-4102-92cc-43150625b787\",\r\n    \"deviceId\": \"Device1\",\r\n    \"tagName\": \"DTag1\",\r\n    \"tagType\": 2,\r\n    \"description\": \"discrete tag 1\",\r\n    \"readOnly\": true,\r\n    \"arraySize\": 0,\r\n    \"state0\": \"0\",\r\n    \"state1\": \"1\",\r\n    \"state2\": \"\",\r\n    \"state3\": \"\",\r\n    \"state4\": \"\",\r\n    \"state5\": \"\",\r\n    \"state6\": \"\",\r\n    \"state7\": \"\"\r\n  }\n]\n```\n\n\n# Example - Create Text Tag\n```\r\n[\r\n  {\r\n    \"nodeId\": \"17fb2905-72e1-4102-92cc-43150625b787\",\r\n    \"deviceId\": \"Device1\",\r\n    \"tagName\": \"TTag1\",\r\n    \"tagType\": 3,\r\n    \"description\": \"text tag 1\",\r\n    \"readOnly\": true,\r\n    \"arraySize\": 0\r\n  }\n]\n```\n\n\n# Example - Create Calculation Tag\n```\r\n[\r\n  {\r\n    \"nodeId\": \"17fb2905-72e1-4102-92cc-43150625b787\",\r\n    \"deviceId\": \"Device1\",\r\n    \"tagName\": \"CTag1\",\r\n    \"tagType\": 4,\r\n    \"description\": \"calculation tag 1\",\r\n    \"formula\": \"{A1}+{A2}\",\r\n    \"interval\": \"5s\",\r\n    \"startAt\": \"2020-10-21T08:46:23.627Z\",\r\n    \"enable\": true,\r\n    \"tags\": [\r\n        {\r\n           \"nodeId\": \"0d1f1b1b-cbdc-497b-8237-25fabe5ff861\",\r\n           \"deviceId\": \"Device1\",\r\n           \"tagName\": \"ATag1\",\r\n           \"alias\": \"A1\"\r\n        },\r\n        {\r\n           \"nodeId\": \"0d1f1b1b-cbdc-497b-8237-25fabe5ff861\",\r\n           \"deviceId\": \"Device1\",\r\n           \"tagName\": \"ATag2\",\r\n           \"alias\": \"A2\"\r\n        }\r\n    ]\r\n  }\n]\n```\n\n\n"
+          required: true
+          schema:
+            description: "\nnodeId: id of node\ndeviceId: id of device\ntagName: name of tag\ntagType: type of tag. analog=1, discrete=2, text=3, calculation=4\ndescription: description of tag\nreadOnly: the tag value can be modified or not\narraySize: the property for array tag. set the size of array tag\n\nengUnit (type of analog): engineering unit\nspanHigh (type of analog): the high limit of the tag range\nspanLow (type of analog): the low limit of the tag range\nfraDspFmt (type of analog): number of digits display of fraction point\nstate0 (type of discrete): the meaning when value equal to 0\nstate1 (type of discrete): the meaning when value equal to 1\nstate2 (type of discrete): the meaning when value equal to 2\nstate3 (type of discrete): the meaning when value equal to 3\nstate4 (type of discrete): the meaning when value equal to 4\nstate5 (type of discrete): the meaning when value equal to 5\nstate6 (type of discrete): the meaning when value equal to 6\nstate7 (type of discrete): the meaning when value equal to 7\nformula (type of calculation): formula for calculating among tags\r\n\n&ndash; formula support a special function hist({TagAlias},n[s|m|h]). hist provides to get the history tag value of \"n\" seconds(s)/minutes(m)/hours(h) before, n must in  1 to 65535.\n&ndash; e.g. formula:\"{TagAlias1} - hist({TagAlias1}, 15s)\" - it means to use the current value of TagAlias1 to minus TagAlias1 value of 15 seconds before.\ninterval (type of calculation): execute formula calculating interval, ex. 1s, 1m, 1h, the range of number is 1 to 65535.\nstartAt (type of calculation): the start time to execute formula calculating\nenable (type of calculation): turn on/off calculating\ntags (type of calculation): tags which participate formula calculating\n\n---\n# Example - Create Analog Tag\n```\r\n[\r\n  {\r\n    \"nodeId\": \"17fb2905-72e1-4102-92cc-43150625b787\",\r\n    \"deviceId\": \"Device1\",\r\n    \"tagName\": \"ATag1\",\r\n    \"tagType\": 1,\r\n    \"description\": \"analog tag 1\",\r\n    \"readOnly\": true,\r\n    \"arraySize\": 0,\r\n    \"engUnit\": \"mV\",\r\n    \"fraDspFmt\": 0,\r\n    \"spanHigh\": 1000,\r\n    \"spanLow\": 0\r\n  }\n]\n```\n\n\n# Example - Create Discrete Tag\n```\r\n[\r\n  {\r\n    \"nodeId\": \"17fb2905-72e1-4102-92cc-43150625b787\",\r\n    \"deviceId\": \"Device1\",\r\n    \"tagName\": \"DTag1\",\r\n    \"tagType\": 2,\r\n    \"description\": \"discrete tag 1\",\r\n    \"readOnly\": true,\r\n    \"arraySize\": 0,\r\n    \"state0\": \"0\",\r\n    \"state1\": \"1\",\r\n    \"state2\": \"\",\r\n    \"state3\": \"\",\r\n    \"state4\": \"\",\r\n    \"state5\": \"\",\r\n    \"state6\": \"\",\r\n    \"state7\": \"\"\r\n  }\n]\n```\n\n\n# Example - Create Text Tag\n```\r\n[\r\n  {\r\n    \"nodeId\": \"17fb2905-72e1-4102-92cc-43150625b787\",\r\n    \"deviceId\": \"Device1\",\r\n    \"tagName\": \"TTag1\",\r\n    \"tagType\": 3,\r\n    \"description\": \"text tag 1\",\r\n    \"readOnly\": true,\r\n    \"arraySize\": 0\r\n  }\n]\n```\n\n\n# Example - Create Calculation Tag\n```\r\n[\r\n  {\r\n    \"nodeId\": \"17fb2905-72e1-4102-92cc-43150625b787\",\r\n    \"deviceId\": \"Device1\",\r\n    \"tagName\": \"CTag1\",\r\n    \"tagType\": 4,\r\n    \"description\": \"calculation tag 1\",\r\n    \"formula\": \"{A1}+{A2}\",\r\n    \"interval\": \"5s\",\r\n    \"startAt\": \"2020-10-21T08:46:23.627Z\",\r\n    \"enable\": true,\r\n    \"tags\": [\r\n        {\r\n           \"nodeId\": \"0d1f1b1b-cbdc-497b-8237-25fabe5ff861\",\r\n           \"deviceId\": \"Device1\",\r\n           \"tagName\": \"ATag1\",\r\n           \"alias\": \"A1\"\r\n        },\r\n        {\r\n           \"nodeId\": \"0d1f1b1b-cbdc-497b-8237-25fabe5ff861\",\r\n           \"deviceId\": \"Device1\",\r\n           \"tagName\": \"ATag2\",\r\n           \"alias\": \"A2\"\r\n        }\r\n    ]\r\n  }\n]\n```\n\n\n"
+            type: array
+            items:
+              $ref: '#/definitions/TagInsert__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TagInsertResponse__v1_0'
+      deprecated: false
+  /v1/HistData/datalog:
+    post:
+      tags:
+        - HistData
+      summary: Get the history datalog of the specified tags
+      operationId: HistData__v1_0.getHistDataLog
+      parameters:
+        - name: data
+          in: body
+          description: |-
+            startTs: UTC time. interval: 1(default). intervalType: millisecond, second(default), minute, hour, day. dataType: last(default), min, max, avg. count: Data retrived, default:10000, limit: 10000. index: array tag index, start from 0 (DO NOT fill index if tag is not array tag).
+            The total number of tags cannot exceed 10000
+            If continuous is true(default), the result is expressed as continuous values, and vice versa.
+          required: true
+          schema:
+            description: |-
+              startTs: UTC time. interval: 1(default). intervalType: millisecond, second(default), minute, hour, day. dataType: last(default), min, max, avg. count: Data retrived, default:10000, limit: 10000. index: array tag index, start from 0 (DO NOT fill index if tag is not array tag).
+              The total number of tags cannot exceed 10000
+              If continuous is true(default), the result is expressed as continuous values, and vice versa.
+            $ref: '#/definitions/HistDataLog__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/HistDataLogResp__v1_0'
+      deprecated: false
+  /v1/HistData/raw:
+    post:
+      tags:
+        - HistData
+      summary: Get the historical raw data of the specified tags
+      operationId: HistData__v1_0.getHistRawData__post_v1_HistData_raw
+      parameters:
+        - name: data
+          in: body
+          description: |-
+            startTs(required) & endTs(required): UTC time. desc: order by desc or not, count: Data retrived, default:10000, limit: 10000. index: array tag index, start from 0 (DO NOT fill index if tag is not array tag).
+            The total number of tags cannot exceed 10000.
+            startTs/endTs/count/desc can also be set in the tag, the inner parameters will overwrite the outer parameters.
+            When there is only startTs and desc is false, it means taking $count values after startTs, and when it only carries endTs and desc is true, it means taking $count values before endTs.
+          required: true
+          schema:
+            description: |-
+              startTs(required) & endTs(required): UTC time. desc: order by desc or not, count: Data retrived, default:10000, limit: 10000. index: array tag index, start from 0 (DO NOT fill index if tag is not array tag).
+              The total number of tags cannot exceed 10000.
+              startTs/endTs/count/desc can also be set in the tag, the inner parameters will overwrite the outer parameters.
+              When there is only startTs and desc is false, it means taking $count values after startTs, and when it only carries endTs and desc is true, it means taking $count values before endTs.
+            $ref: '#/definitions/HistRawData__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/HistDataResp__v1_0'
+      deprecated: false
+  /v1/HistData/raw/pagination:
+    post:
+      tags:
+        - HistData
+      summary: Get the historical raw data of the specified tags with pagination and filter
+      operationId: HistData__v1_0.getHistRawData__post_v1_HistData_raw_pagination
+      parameters:
+        - name: data
+          in: body
+          description: |-
+
+            startTs(required) & endTs(required): UTC time
+            desc: order by desc or not
+            count: Data retrived, default:10000, limit: 10000 
+            index: array tag index, start from 0 (DO NOT fill index if tag is not array tag)
+            pageIndex: index for Pagination
+            pageCount: count for Pagination
+            filter:
+            &hyphen;type: type for filter, greater,less,equal,within,outside,notequal, text tag only accepts equal type
+            &hyphen;values: values for filter, ex. [5], [5, 10], ["TEST"], when filter type is within and outside, needs to set 2 values, ex. [5, 10]
+            &hyphen;tagName: tagName for filter
+            &hyphen;index: array tag index for filter
+            The total number of tags cannot exceed 10000
+          required: true
+          schema:
+            description: |-
+
+              startTs(required) & endTs(required): UTC time
+              desc: order by desc or not
+              count: Data retrived, default:10000, limit: 10000 
+              index: array tag index, start from 0 (DO NOT fill index if tag is not array tag)
+              pageIndex: index for Pagination
+              pageCount: count for Pagination
+              filter:
+              &hyphen;type: type for filter, greater,less,equal,within,outside,notequal, text tag only accepts equal type
+              &hyphen;values: values for filter, ex. [5], [5, 10], ["TEST"], when filter type is within and outside, needs to set 2 values, ex. [5, 10]
+              &hyphen;tagName: tagName for filter
+              &hyphen;index: array tag index for filter
+              The total number of tags cannot exceed 10000
+            $ref: '#/definitions/HistRawDataPage__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/HistDataRespPage__v1_0'
+      deprecated: false
+  /v1/RealData/raw:
+    post:
+      tags:
+        - RealData
+      summary: Get the raw data of the specified tags
+      operationId: RealData__v1_0.getRawValue
+      parameters:
+        - name: data
+          in: body
+          description: |-
+            nodeId. deviceId. tagName. index(option): array tag index, start from 0. DO NOT fill index if tag is not array tag.
+            The number of tags cannot exceed 10000
+          required: true
+          schema:
+            description: |-
+              nodeId. deviceId. tagName. index(option): array tag index, start from 0. DO NOT fill index if tag is not array tag.
+              The number of tags cannot exceed 10000
+            type: array
+            items:
+              $ref: '#/definitions/TagReq__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RealDataModel__v1_0'
+      deprecated: false
+  /v1/RealData/convert:
+    post:
+      tags:
+        - RealData
+      summary: Get the real-time converted data of the specified tags
+      operationId: RealData__v1_0.getConvertValue
+      parameters:
+        - name: data
+          in: body
+          description: |-
+            nodeId. deviceId. tagName. index(option): array tag index, start from 0. DO NOT fill index if tag is not array tag.
+            The number of tags cannot exceed 10000
+          required: true
+          schema:
+            description: |-
+              nodeId. deviceId. tagName. index(option): array tag index, start from 0. DO NOT fill index if tag is not array tag.
+              The number of tags cannot exceed 10000
+            type: array
+            items:
+              $ref: '#/definitions/TagReq__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RealDataModel__v1_0'
+      deprecated: false
+  /v1/RealData/set:
+    post:
+      tags:
+        - RealData
+      summary: 'Send a write value command to the device. (This API is deprecated, and will be removed in a future version. Please use /v1/Command/writeValue instead instead.)'
+      operationId: RealData__v1_0.setValue
+      parameters:
+        - name: data
+          in: body
+          description: |
+
+            nodeId, deviceId, tagName, and value are required
+            index is option for array tag
+            ts is optional, ts format should be timestamp or ISO String
+          required: true
+          schema:
+            description: |
+
+              nodeId, deviceId, tagName, and value are required
+              index is option for array tag
+              ts is optional, ts format should be timestamp or ISO String
+            type: array
+            items:
+              $ref: '#/definitions/TagValue__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/Statuses/node:
+    post:
+      tags:
+        - Status
+      summary: Get the Node status
+      operationId: Status__v1_0.getNodeStatus
+      parameters:
+        - name: data
+          in: body
+          description: NodeId list
+          required: true
+          schema:
+            description: NodeId list
+            type: array
+            items:
+              $ref: '#/definitions/NodeInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/NodeStatus__v1_0'
+      deprecated: false
+  /v1/Statuses/device:
+    post:
+      tags:
+        - Status
+      summary: Get the device status
+      operationId: Status__v1_0.getDeviceStatus
+      parameters:
+        - name: data
+          in: body
+          description: NodeId list
+          required: true
+          schema:
+            description: NodeId list
+            type: array
+            items:
+              $ref: '#/definitions/DeviceInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/DeviceStatus__v1_0'
+      deprecated: false
+  /v1/Alarms:
+    post:
+      tags:
+        - Alarm
+      summary: Create alarm
+      operationId: Alarm__v1_0.createAlarm
+      parameters:
+        - name: data
+          in: body
+          description: 'create alarm config and tags. notifications[0].event: 1(Happened), 2(Acked), 3(Cleared). notifications[0].groupId: notification groupId, string(12)'
+          required: true
+          schema:
+            description: 'create alarm config and tags. notifications[0].event: 1(Happened), 2(Acked), 3(Cleared). notifications[0].groupId: notification groupId, string(12)'
+            $ref: '#/definitions/AlarmCreateInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/AlarmCreateResponse__v1_0'
+      deprecated: false
+    get:
+      tags:
+        - Alarm
+      summary: List all alarm information.
+      operationId: Alarm__v1_0.listAllAlarms
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+        - name: alarmId
+          in: query
+          description: alarm Id
+          required: false
+          type: string
+        - name: nodeId
+          in: query
+          description: node Id
+          required: false
+          type: string
+        - name: code
+          in: query
+          description: code
+          required: false
+          type: string
+        - name: message
+          in: query
+          description: message
+          required: false
+          type: string
+        - name: ackable
+          in: query
+          description: ackable
+          required: false
+          type: boolean
+        - name: count
+          in: query
+          description: 'Data retrived. limit: 1000'
+          required: false
+          default: 1000
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          default: 1
+          type: number
+          format: double
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/AlarmList__v1_0'
+      deprecated: false
+  '/v1/Alarms/{alarmId}':
+    put:
+      tags:
+        - Alarm
+      summary: Update the specified alarm information
+      operationId: Alarm__v1_0.updateAlarm
+      parameters:
+        - name: alarmId
+          in: path
+          description: alarm Id
+          required: true
+          type: string
+        - name: data
+          in: body
+          description: 'alarm update object.notifications[0].event: 1(Happened), 2(Acked), 3(Cleared). notifications[0].groupId: notification groupId, string(12)'
+          required: true
+          schema:
+            description: 'alarm update object.notifications[0].event: 1(Happened), 2(Acked), 3(Cleared). notifications[0].groupId: notification groupId, string(12)'
+            $ref: '#/definitions/AlarmUpdateInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    delete:
+      tags:
+        - Alarm
+      summary: Delete the specified alarm log information
+      operationId: Alarm__v1_0.deleteAlarm
+      parameters:
+        - name: alarmId
+          in: path
+          description: alarmId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/Alarms/data:
+    post:
+      tags:
+        - Alarm
+      summary: Get the data of the specified alarm.
+      operationId: Alarm__v1_0.getAlarmData
+      parameters:
+        - name: data
+          in: body
+          description: 'startTs(required) & endTs(required): UTC time. desc: order by desc or not. count: Data retrived, limit: 10000, must larger than 0. index: Starting index, , must larger than 0.'
+          required: true
+          schema:
+            description: 'startTs(required) & endTs(required): UTC time. desc: order by desc or not. count: Data retrived, limit: 10000, must larger than 0. index: Starting index, , must larger than 0.'
+            $ref: '#/definitions/AlarmDataQuery__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/AlarmData__v1_0'
+      deprecated: false
+  /v1/Alarms/recent:
+    post:
+      tags:
+        - Alarm
+      summary: Get the recent status of the specified alarms.
+      operationId: Alarm__v1_0.getAlarmStatus
+      parameters:
+        - name: data
+          in: body
+          description: 'count: Data retrived, limit: 10000, must larger than 0. index: Starting index, must larger than 0. acked: filter the acked status or not.'
+          required: true
+          schema:
+            description: 'count: Data retrived, limit: 10000, must larger than 0. index: Starting index, must larger than 0. acked: filter the acked status or not.'
+            $ref: '#/definitions/AlarmStatusQuery__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/AlarmStatus__v1_0'
+      deprecated: false
+  /v1/Alarms/syncInstance:
+    post:
+      tags:
+        - Alarm
+      summary: Launch/Close alarm Instance.
+      operationId: Alarm__v1_0.syncInstance
+      parameters:
+        - name: data
+          in: body
+          description: 'alarmId: the alarm you want to sync, type: launch/close'
+          required: true
+          schema:
+            description: 'alarmId: the alarm you want to sync, type: launch/close'
+            $ref: '#/definitions/AlarmSyncReq__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/Alarms/ack:
+    post:
+      tags:
+        - Alarm
+      summary: send ack for alarm
+      operationId: Alarm__v1_0.ackAlarm
+      parameters:
+        - name: data
+          in: body
+          description: alarm ack object
+          required: true
+          schema:
+            description: alarm ack object
+            type: array
+            items:
+              $ref: '#/definitions/AlarmAckInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/Alarms/amount:
+    get:
+      tags:
+        - Alarm
+      summary: Get amount of alarms.
+      operationId: Alarm__v1_0.amount
+      parameters: []
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: number
+            format: double
+      deprecated: false
+  /v1/Tokens:
+    get:
+      tags:
+        - Token
+      summary: Refresh token
+      operationId: Token__v1_0.refreshToken
+      parameters: []
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: object
+            properties:
+              res:
+                type: object
+      deprecated: false
+  /v1/Users:
+    post:
+      tags:
+        - UserInfo
+      summary: Create a new user.
+      operationId: UserInfo__v1_0.createUser
+      parameters:
+        - name: data
+          in: body
+          description: |
+
+            userName: SSO account with email format, the userName will be used as the email currently, no matter the email is set or not
+            email: (not support currently) SSO notified email
+            description: description
+            roleId: role of org
+          required: true
+          schema:
+            description: |
+
+              userName: SSO account with email format, the userName will be used as the email currently, no matter the email is set or not
+              email: (not support currently) SSO notified email
+              description: description
+              roleId: role of org
+            $ref: '#/definitions/UserInsertInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    get:
+      tags:
+        - UserInfo
+      summary: List all user
+      operationId: UserInfo__v1_0.listAllUser
+      parameters:
+        - name: count
+          in: query
+          description: Data retrived.
+          required: false
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          type: number
+          format: double
+        - name: userName
+          in: query
+          description: Filter userName
+          required: false
+          type: string
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/UserCount__v1_0'
+      deprecated: false
+  /v1/Users/me:
+    get:
+      tags:
+        - UserInfo
+      summary: List self information
+      operationId: UserInfo__v1_0.listSelf
+      parameters: []
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/UserInstance__v1_0'
+      deprecated: false
+  /v1/Users/me/switchOrg:
+    post:
+      tags:
+        - UserInfo
+      summary: switch current org
+      operationId: UserInfo__v1_0.switchCurrentOrg
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SwitchCurrentOrgReq__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/Users/resetPassword:
+    get:
+      tags:
+        - UserInfo
+      summary: 'reset Password, follow the steps of the email content which you will receive.'
+      operationId: UserInfo__v1_0.resetPassword
+      parameters:
+        - name: userName
+          in: query
+          description: userName.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  '/v1/Users/{userName}':
+    get:
+      tags:
+        - UserInfo
+      summary: List the specified user information
+      operationId: UserInfo__v1_0.listUserByUserName
+      parameters:
+        - name: userName
+          in: path
+          description: userName.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/UserInstance__v1_0'
+      deprecated: false
+    put:
+      tags:
+        - UserInfo
+      summary: Update an existing user.
+      operationId: UserInfo__v1_0.updateUser
+      parameters:
+        - name: userName
+          in: path
+          description: userName.
+          required: true
+          type: string
+        - name: data
+          in: body
+          description: user instance.
+          required: true
+          schema:
+            description: user instance.
+            $ref: '#/definitions/UserUpdateInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/UserUpdateInstance__v1_0'
+      deprecated: false
+    delete:
+      tags:
+        - UserInfo
+      summary: Delete the specified user.
+      operationId: UserInfo__v1_0.deleteUser
+      parameters:
+        - name: userName
+          in: path
+          description: user name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  '/v1/Users/{userName}/device':
+    post:
+      tags:
+        - UserInfo
+      summary: Create new device access permission
+      operationId: UserInfo__v1_0.insertUserDevice
+      parameters:
+        - name: userName
+          in: path
+          description: user name
+          required: true
+          type: string
+        - name: data
+          in: body
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserAllowDevice__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    get:
+      tags:
+        - UserInfo
+      summary: Get the devices that user can access
+      operationId: UserInfo__v1_0.getUserDevice
+      parameters:
+        - name: userName
+          in: path
+          description: user name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserDevices__v1_0'
+      deprecated: false
+    put:
+      tags:
+        - UserInfo
+      summary: Update device access permission
+      operationId: UserInfo__v1_0.updateUserDevice
+      parameters:
+        - name: userName
+          in: path
+          description: user name
+          required: true
+          type: string
+        - name: data
+          in: body
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/UserAllowDevice__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    delete:
+      tags:
+        - UserInfo
+      summary: Delete user's device access permission
+      operationId: UserInfo__v1_0.deleteUserDevice
+      parameters:
+        - name: userName
+          in: path
+          description: user name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/Roles:
+    post:
+      tags:
+        - RoleInfo
+      summary: Create a new role.
+      operationId: RoleInfo__v1_0.createRole
+      parameters:
+        - name: data
+          in: body
+          description: role instance
+          required: true
+          schema:
+            description: role instance
+            $ref: '#/definitions/RoleInsertInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    get:
+      tags:
+        - RoleInfo
+      summary: List all the roles and scope level for each role
+      operationId: RoleInfo__v1_0.listAllRoles
+      parameters:
+        - name: count
+          in: query
+          description: Data retrived.
+          required: false
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          type: number
+          format: double
+        - name: roleId
+          in: query
+          description: Filter roleId
+          required: false
+          type: string
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/RoleGet__v1_0'
+      deprecated: false
+  '/v1/Roles/{roleId}':
+    get:
+      tags:
+        - RoleInfo
+      summary: List the specified role and its scope level
+      operationId: RoleInfo__v1_0.listRoleById
+      parameters:
+        - name: roleId
+          in: path
+          description: role Id.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/RoleInsertInstance__v1_0'
+      deprecated: false
+    put:
+      tags:
+        - RoleInfo
+      summary: Update an existing role
+      operationId: RoleInfo__v1_0.updateRole
+      parameters:
+        - name: roleId
+          in: path
+          description: role Id.
+          required: true
+          type: string
+        - name: data
+          in: body
+          description: role instance
+          required: true
+          schema:
+            description: role instance
+            $ref: '#/definitions/RoleUpdateInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    delete:
+      tags:
+        - RoleInfo
+      summary: Delete the specified role
+      operationId: RoleInfo__v1_0.deleteRole
+      parameters:
+        - name: roleId
+          in: path
+          description: role Id.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/Scopes:
+    get:
+      tags:
+        - ScopeInfo
+      summary: List all scopes
+      operationId: ScopeInfo__v1_0.listAllScope
+      parameters: []
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ScopeModel__v1_0'
+      deprecated: false
+  /v1/SimpleJsons:
+    get:
+      tags:
+        - SimpleJson
+      operationId: SimpleJson__v1_0.testTheConnection
+      parameters: []
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: string
+      deprecated: false
+  /v1/SimpleJsons/query:
+    post:
+      tags:
+        - SimpleJson
+      operationId: SimpleJson__v1_0.queryHistData
+      parameters:
+        - name: data
+          in: body
+          description: |-
+            If continuous is true(default), the result is expressed as continuous values, and vice versa.
+            dataType: last,min,max,avg,raw,real.
+            The number of target cannot exceed 10000
+            tag can be an ArrayTag, ex.ArrayTag(0), 0 is the first index
+            maxDataPoints: count of hist raw data, default is 10000
+            convert: convert value, default is false
+          required: true
+          schema:
+            description: |-
+              If continuous is true(default), the result is expressed as continuous values, and vice versa.
+              dataType: last,min,max,avg,raw,real.
+              The number of target cannot exceed 10000
+              tag can be an ArrayTag, ex.ArrayTag(0), 0 is the first index
+              maxDataPoints: count of hist raw data, default is 10000
+              convert: convert value, default is false
+            $ref: '#/definitions/SimpleJsonQueryData__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SimpleJsonQueryResult__v1_0'
+      deprecated: false
+  /v1/SimpleJsons/alarms:
+    post:
+      tags:
+        - SimpleJson
+      operationId: SimpleJson__v1_0.queryAlarm
+      parameters:
+        - name: data
+          in: body
+          description: 'type(required): recent or history. startTs & endTs (in UTC time) are required in history type. desc: order by desc or not. count: Data retrived, limit: 10000, must larger than 0. index: Starting index, must larger than 0.'
+          required: true
+          schema:
+            description: 'type(required): recent or history. startTs & endTs (in UTC time) are required in history type. desc: order by desc or not. count: Data retrived, limit: 10000, must larger than 0. index: Starting index, must larger than 0.'
+            $ref: '#/definitions/SimpleJsonQueryAlarm__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SimpleJsonQueryAlarmResult__v1_0'
+      deprecated: false
+  /v1/SimpleJsons/searchProject:
+    post:
+      tags:
+        - SimpleJson
+      operationId: SimpleJson__v1_0.queryProject
+      parameters: []
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SimpleJsonQueryResponse__v1_0'
+      deprecated: false
+  /v1/SimpleJsons/searchNode:
+    post:
+      tags:
+        - SimpleJson
+      operationId: SimpleJson__v1_0.queryNode
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SimpleJsonQueryNode__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SimpleJsonQueryResponse__v1_0'
+      deprecated: false
+  /v1/SimpleJsons/searchDevice:
+    post:
+      tags:
+        - SimpleJson
+      operationId: SimpleJson__v1_0.queryDevice
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SimpleJsonQueryDevice__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SimpleJsonQueryResponse__v1_0'
+      deprecated: false
+  /v1/SimpleJsons/searchTag:
+    post:
+      tags:
+        - SimpleJson
+      operationId: SimpleJson__v1_0.queryTag
+      parameters:
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SimpleJsonQueryTag__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SimpleJsonQueryTagResponse__v1_0'
+      deprecated: false
+  /v1/SimpleJsons/annotations:
+    post:
+      tags:
+        - SimpleJson
+      operationId: SimpleJson__v1_0.annotations
+      parameters: []
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: object
+      deprecated: false
+  /v1/SimpleJsons/setValue:
+    post:
+      tags:
+        - SimpleJson
+      summary: Send a write value command to the device
+      operationId: SimpleJson__v1_0.writeValue
+      parameters:
+        - name: data
+          in: body
+          description: |
+
+            node, device, tag, and value are required
+            ts is optional, ts format should be timestamp or ISO String
+            tagName can be array tag, ex. ATag(0), 0 means zero index
+          required: true
+          schema:
+            description: |
+
+              node, device, tag, and value are required
+              ts is optional, ts format should be timestamp or ISO String
+              tagName can be array tag, ex. ATag(0), 0 means zero index
+            type: array
+            items:
+              $ref: '#/definitions/SimpleJsonWriteValue__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: string
+      deprecated: false
+  /v1/Auth:
+    post:
+      tags:
+        - Auth
+      summary: Sign in by account
+      operationId: Auth__v1_0.ssoAuth
+      parameters:
+        - name: data
+          in: body
+          description: Account info
+          required: true
+          schema:
+            description: Account info
+            $ref: '#/definitions/SSOAuthObject__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/SSOAuthResp__v1_0'
+      deprecated: false
+  /v1/Auth/ldap:
+    post:
+      tags:
+        - Auth
+      summary: Sign in by LDAP account
+      operationId: Auth__v1_0.ssoAuthLDAP
+      parameters:
+        - name: data
+          in: body
+          description: Account info
+          required: true
+          schema:
+            description: Account info
+            $ref: '#/definitions/SSOAuthObject__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/SSOAuthResp__v1_0'
+      deprecated: false
+  /v1/Auth/delete:
+    delete:
+      tags:
+        - Auth
+      summary: Sign out
+      operationId: Auth__v1_0.deleteAuth
+      parameters: []
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/System/getParams:
+    post:
+      tags:
+        - System
+      summary: Get system parameters
+      operationId: System__v1_0.get
+      parameters:
+        - name: data
+          in: body
+          description: system parameter names
+          required: true
+          schema:
+            description: system parameter names
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SystemModel__v1_0'
+      deprecated: false
+  /v1/System:
+    put:
+      tags:
+        - System
+      summary: Update the specified system parameters
+      operationId: System__v1_0.update
+      parameters:
+        - name: data
+          in: body
+          description: system parameters
+          required: true
+          schema:
+            description: system parameters
+            type: array
+            items:
+              $ref: '#/definitions/SystemUpdateInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/System/users:
+    post:
+      tags:
+        - System
+      summary: Create a new user.
+      operationId: System__v1_0.createUser
+      parameters:
+        - name: data
+          in: body
+          description: |
+
+            userName: SSO account with email format, the userName will be used as the email currently, no matter the email is set or not
+            email: (not support currently) SSO notified email
+            description: description
+            systemAdmin: admin of datahub service
+            orgRole: org-role cfg of user
+          required: true
+          schema:
+            description: |
+
+              userName: SSO account with email format, the userName will be used as the email currently, no matter the email is set or not
+              email: (not support currently) SSO notified email
+              description: description
+              systemAdmin: admin of datahub service
+              orgRole: org-role cfg of user
+            $ref: '#/definitions/SystemUserInsert__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    get:
+      tags:
+        - System
+      summary: List all user
+      operationId: System__v1_0.listAllUser
+      parameters:
+        - name: count
+          in: query
+          description: Data retrived.
+          required: false
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          type: number
+          format: double
+        - name: userName
+          in: query
+          description: Filter userName
+          required: false
+          type: string
+        - name: orgName
+          in: query
+          description: Filter orgName
+          required: false
+          type: string
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/SystemUserGetResponse__v1_0'
+      deprecated: false
+  '/v1/System/users/{userName}':
+    delete:
+      tags:
+        - System
+      summary: Delete the specified user.
+      operationId: System__v1_0.deleteUser
+      parameters:
+        - name: userName
+          in: path
+          description: user name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    put:
+      tags:
+        - System
+      summary: Update an existing user.
+      operationId: System__v1_0.updateUser
+      parameters:
+        - name: userName
+          in: path
+          description: userName.
+          required: true
+          type: string
+        - name: data
+          in: body
+          description: user instance.
+          required: true
+          schema:
+            description: user instance.
+            $ref: '#/definitions/SystemUserUpdate__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    get:
+      tags:
+        - System
+      summary: List the specified user information
+      operationId: System__v1_0.listUserByUserName
+      parameters:
+        - name: userName
+          in: path
+          description: userName.
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/SystemUserGetOneResponse__v1_0'
+      deprecated: false
+  /v1/System/credentials:
+    get:
+      tags:
+        - System
+      summary: List credentials
+      operationId: System__v1_0.credentials
+      parameters: []
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: object
+      deprecated: false
+  /v1/System/status:
+    get:
+      tags:
+        - System
+      summary: List connection status
+      operationId: System__v1_0.status
+      parameters: []
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: object
+      deprecated: false
+  /v1/RetentionPolicy:
+    post:
+      tags:
+        - RetentionPolicy
+      summary: Create new retention policy
+      operationId: RetentionPolicy__v1_0.createRetentionPolicy
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+        - name: data
+          in: body
+          description: Retention Policy instance
+          required: true
+          schema:
+            description: Retention Policy instance
+            type: array
+            items:
+              $ref: '#/definitions/RpInsertInstance__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RpResult__v1_0'
+      deprecated: false
+    get:
+      tags:
+        - RetentionPolicy
+      summary: List all retention policy
+      operationId: RetentionPolicy__v1_0.listAllRetentionPolicy
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+        - name: count
+          in: query
+          description: Data retrived.
+          required: false
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          type: number
+          format: double
+        - name: name
+          in: query
+          description: Filter by name
+          required: false
+          type: string
+        - name: bindAll
+          in: query
+          description: Filter by boolean
+          required: false
+          type: boolean
+        - name: description
+          in: query
+          description: Filter by description
+          required: false
+          type: string
+        - name: duration
+          in: query
+          description: Filter by duration
+          required: false
+          type: number
+          format: double
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/RetentionPolicyCount__v1_0'
+      deprecated: false
+  '/v1/RetentionPolicy/{name}':
+    get:
+      tags:
+        - RetentionPolicy
+      summary: List the specified retention policy information
+      operationId: RetentionPolicy__v1_0.listRetentionPolicyByName
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+        - name: name
+          in: path
+          description: Retention policy name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/RpModel__v1_0'
+      deprecated: false
+    put:
+      tags:
+        - RetentionPolicy
+      summary: Update an existing retention policy
+      operationId: RetentionPolicy__v1_0.updateRetentionPolicy
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+        - name: name
+          in: path
+          description: Retention policy name
+          required: true
+          type: string
+        - name: data
+          in: body
+          description: Retention policy instance
+          required: true
+          schema:
+            description: Retention policy instance
+            $ref: '#/definitions/RpUpdate__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    delete:
+      tags:
+        - RetentionPolicy
+      summary: Delete the specified retention policy.
+      operationId: RetentionPolicy__v1_0.deleteRetentionPolicy
+      parameters:
+        - name: orgName
+          in: query
+          description: Using the specific org name
+          required: false
+          type: string
+        - name: name
+          in: path
+          description: Retention policy name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/Orgs:
+    post:
+      tags:
+        - Org
+      summary: Create new Orgs
+      operationId: Org__v1_0.createOrgs
+      parameters:
+        - name: data
+          in: body
+          description: |
+
+            orgName: name of org
+            description: description
+            storageSize: db storage size, unit is MiB, 0 is unlimited resource, range is 1(1MiB)-1048576(1TiB)
+            tagQuantity: total tag count of this org, 0 is unlimited, range is 1-100000
+          required: true
+          schema:
+            description: |
+
+              orgName: name of org
+              description: description
+              storageSize: db storage size, unit is MiB, 0 is unlimited resource, range is 1(1MiB)-1048576(1TiB)
+              tagQuantity: total tag count of this org, 0 is unlimited, range is 1-100000
+            type: array
+            items:
+              $ref: '#/definitions/OrgCreate__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/OrgCreate__v1_0'
+      deprecated: false
+    get:
+      tags:
+        - Org
+      summary: Get organization list
+      operationId: Org__v1_0.getOrgList
+      parameters:
+        - name: count
+          in: query
+          description: 'Data retrived. limit: 1000'
+          required: false
+          default: 1000
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: Starting Index
+          required: false
+          default: 1
+          type: number
+          format: double
+        - name: orgName
+          in: query
+          description: Organization Name
+          required: false
+          type: string
+        - name: description
+          in: query
+          description: Filter Organization Description
+          required: false
+          type: string
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          default: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/OrgList__v1_0'
+      deprecated: false
+  '/v1/Orgs/{orgName}':
+    get:
+      tags:
+        - Org
+      summary: Get organization information by organization name
+      operationId: Org__v1_0.getOrgByOrgName
+      parameters:
+        - name: orgName
+          in: path
+          description: Organization Name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            $ref: '#/definitions/OrgList__v1_0'
+      deprecated: false
+    put:
+      tags:
+        - Org
+      summary: update organization information by organization name
+      operationId: Org__v1_0.updateOrgInfo
+      parameters:
+        - name: orgName
+          in: path
+          description: Organization Name
+          required: true
+          type: string
+        - name: data
+          in: body
+          description: Organization information
+          required: true
+          schema:
+            description: Organization information
+            $ref: '#/definitions/OrgUpdate__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    delete:
+      tags:
+        - Org
+      summary: Delete organization information by organization name
+      operationId: Org__v1_0.deleteOrg
+      parameters:
+        - name: orgName
+          in: path
+          description: Organization Name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  '/v1/Orgs/{orgName}/users/{userName}':
+    patch:
+      tags:
+        - Org
+      summary: patch user org role
+      operationId: Org__v1_0.patchUserRole
+      parameters:
+        - name: orgName
+          in: path
+          description: Organization Name
+          required: true
+          type: string
+        - name: userName
+          in: path
+          description: User Name
+          required: true
+          type: string
+        - name: data
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/OrgUserRolePatch__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+    delete:
+      tags:
+        - Org
+      summary: delete user org role
+      operationId: Org__v1_0.deleteUserRole
+      parameters:
+        - name: orgName
+          in: path
+          description: Organization Name
+          required: true
+          type: string
+        - name: userName
+          in: path
+          description: User Name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+  /v1/ActionLog:
+    get:
+      tags:
+        - ActionLog
+      summary: List/find Action Logs
+      operationId: ActionLog__v1_0.get
+      parameters:
+        - name: logId
+          in: query
+          description: ID of each actionLog
+          required: false
+          type: string
+        - name: userName
+          in: query
+          description: userName
+          required: false
+          type: string
+        - name: orgName
+          in: query
+          description: orgName
+          required: false
+          type: string
+        - name: type
+          in: query
+          description: 'deviceManagement|alarm|accountSetting|systemSetting|retentionPolicy, type accepts multi selection, ex. "systemSetting, retentionPolicy"'
+          required: false
+          type: string
+        - name: message
+          in: query
+          description: filter by action message (action.msg)
+          required: false
+          type: string
+        - name: startTs
+          in: query
+          description: 'start Time for filtering, Can accept timestamp(number) or ISO Date(string)'
+          required: false
+          type: string
+          format: JSON
+        - name: endTs
+          in: query
+          description: 'end Time for filtering, Can accept timestamp(number) or ISO Date(string)'
+          required: false
+          type: string
+          format: JSON
+        - name: detail
+          in: query
+          description: list detail info or not
+          required: false
+          type: boolean
+        - name: count
+          in: query
+          description: 'Data retrived. limit: 1000'
+          required: false
+          default: 1000
+          type: number
+          format: double
+        - name: index
+          in: query
+          description: 'Starting Index, start from 1'
+          required: false
+          default: 1
+          type: number
+          format: double
+        - name: sortby
+          in: query
+          description: Sort by the specified property
+          required: false
+          type: string
+        - name: desc
+          in: query
+          description: order by desc or not
+          required: false
+          type: boolean
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: object
+      deprecated: false
+  /v1/Command/writeValue:
+    post:
+      tags:
+        - Command
+      summary: Send a write value command to the device
+      operationId: Command__v1_0.writeValue
+      parameters:
+        - name: data
+          in: body
+          description: |
+
+            nodeId, deviceId, tagName, and value are required
+            index is option for array tag
+            ts is optional, ts format should be timestamp or ISO String
+          required: true
+          schema:
+            description: |
+
+              nodeId, deviceId, tagName, and value are required
+              index is option for array tag
+              ts is optional, ts format should be timestamp or ISO String
+            type: array
+            items:
+              $ref: '#/definitions/TagValue__v1_0'
+      responses:
+        '200':
+          description: Request was successful
+          schema:
+            type: boolean
+      deprecated: false
+tags:
+  - name: Project
+  - name: Node
+  - name: Device
+  - name: Tag
+  - name: HistData
+  - name: RealData
+  - name: Status
+  - name: Alarm
+  - name: Token
+  - name: UserInfo
+  - name: RoleInfo
+  - name: ScopeInfo
+  - name: SimpleJson
+  - name: Auth
+  - name: System
+  - name: RetentionPolicy
+  - name: Org
+  - name: ActionLog
+  - name: Command
+consumes:
+  - application/json
+  - application/x-www-form-urlencoded
+  - application/xml
+  - text/xml
+produces:
+  - application/json
+definitions:
+  ProjectModel__v1_0:
+    properties:
+      projectName:
+        type: string
+      description:
+        type: string
+    required:
+      - projectName
+    additionalProperties: false
+  ProjectCount__v1_0:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/ProjectModel__v1_0'
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    required:
+      - list
+    additionalProperties: false
+  ProjectUpdateInstance__v1_0:
+    properties:
+      description:
+        type: string
+    additionalProperties: false
+  SyncRes__v1_0:
+    properties:
+      nodeId:
+        type: string
+      isSuccess:
+        type: boolean
+      errMsg:
+        type: string
+    required:
+      - nodeId
+      - isSuccess
+      - errMsg
+    additionalProperties: false
+  ProjectExportRes__v1_0:
+    properties:
+      model:
+        type: string
+    additionalProperties: false
+  ProjectImportReq__v1_0:
+    properties:
+      model:
+        type: string
+      async:
+        default: false
+        type: boolean
+    additionalProperties: false
+  NodeInsertInstance__v1_0:
+    properties:
+      projectId:
+        type: string
+      nodeName:
+        type: string
+      nodeType:
+        default: gateway
+        type: string
+      description:
+        type: string
+      storageSize:
+        default: 0
+        type: number
+        format: double
+    required:
+      - projectId
+      - nodeName
+    additionalProperties: false
+  NodeInsertResponse__v1_0:
+    properties:
+      nodeId:
+        type: string
+      projectId:
+        type: string
+      nodeName:
+        type: string
+      result:
+        type: boolean
+      credentialKey:
+        type: string
+      errMsg:
+        type: string
+    required:
+      - nodeId
+    additionalProperties: false
+  NodeList__v1_0:
+    properties:
+      projectId:
+        type: string
+      nodeId:
+        type: string
+      nodeName:
+        type: string
+    required:
+      - nodeId
+    additionalProperties: false
+  NodeCount__v1_0:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/NodeModel__v1_0'
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    required:
+      - list
+    additionalProperties: false
+  NodeModel__v1_0:
+    properties:
+      projectId:
+        type: string
+      nodeId:
+        type: string
+      nodeType:
+        type: number
+        format: double
+      nodeName:
+        type: string
+      description:
+        type: string
+      heartbeat:
+        type: number
+        format: double
+      configUploaded:
+        type: boolean
+      credentialKey:
+        type: string
+      configLocked:
+        type: boolean
+      disconnectToleranceTime:
+        type: number
+        format: double
+    required:
+      - nodeId
+    additionalProperties: false
+  NodeUpdateInstance__v1_0:
+    properties:
+      description:
+        type: string
+    required:
+      - description
+    additionalProperties: false
+  NodeLockInstance__v1_0:
+    properties:
+      configLocked:
+        type: boolean
+    required:
+      - configLocked
+    additionalProperties: false
+  BindNodeInstance__v1_0:
+    properties:
+      projectId:
+        type: string
+      nodeId:
+        type: string
+    required:
+      - projectId
+      - nodeId
+    additionalProperties: false
+  NodeImportReq__v1_0:
+    properties:
+      projectId:
+        type: string
+      nodeName:
+        type: string
+      model:
+        type: string
+    additionalProperties: false
+  DeviceListCount__v1_0:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/DeviceList__v1_0'
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    additionalProperties: false
+  DeviceCount__v1_0:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/DeviceDetail__v1_0'
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    required:
+      - list
+    additionalProperties: false
+  DeviceDetail__v1_0:
+    properties:
+      nodeName:
+        type: string
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      deviceName:
+        type: string
+      deviceType:
+        type: string
+      description:
+        type: string
+      retentionPolicy:
+        type: string
+    additionalProperties: false
+  DeviceUpdateInstance__v1_0:
+    properties:
+      description:
+        type: string
+      deviceType:
+        type: string
+    required:
+      - description
+      - deviceType
+    additionalProperties: false
+  DeviceInsert__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      deviceName:
+        type: string
+      deviceType:
+        type: string
+      description:
+        type: string
+    additionalProperties: false
+  DeviceInsertResponse__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      deviceName:
+        type: string
+    additionalProperties: false
+  DeviceImportReq__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceName:
+        type: string
+      model:
+        type: string
+    additionalProperties: false
+  TagListCount__v1_0:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/TagList__v1_0'
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    additionalProperties: false
+  TagCount__v1_0:
+    properties:
+      list:
+        description: tags list
+        type: array
+        items:
+          $ref: '#/definitions/TagModel__v1_0'
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    required:
+      - list
+      - totalCount
+      - index
+      - count
+    additionalProperties: false
+  TagInfoObj__v1_0:
+    properties:
+      tagName:
+        type: string
+      deviceId:
+        type: string
+      nodeId:
+        type: string
+      tagType:
+        type: number
+        format: double
+      description:
+        type: string
+      arraySize:
+        type: number
+        format: double
+      readOnly:
+        type: boolean
+      engUnit:
+        type: string
+      fraDspFmt:
+        type: number
+        format: double
+      spanHigh:
+        type: number
+        format: double
+      spanLow:
+        type: number
+        format: double
+      state0:
+        type: string
+      state1:
+        type: string
+      state2:
+        type: string
+      state3:
+        type: string
+      state4:
+        type: string
+      state5:
+        type: string
+      state6:
+        type: string
+      state7:
+        type: string
+      formula:
+        type: string
+      interval:
+        type: string
+      startAt:
+        type: string
+        format: date-time
+      enable:
+        type: boolean
+      tags:
+        type: array
+        items:
+          type: object
+          properties:
+            nodeId:
+              type: string
+            deviceId:
+              type: string
+            tagName:
+              type: string
+            alias:
+              type: string
+    required:
+      - tagName
+      - deviceId
+      - nodeId
+    additionalProperties: false
+  TagUpdateInstance__v1_0:
+    properties:
+      description:
+        type: string
+      readOnly:
+        type: boolean
+      arraySize:
+        type: number
+        format: double
+      engUnit:
+        type: string
+      fraDspFmt:
+        type: number
+        format: double
+      spanHigh:
+        type: number
+        format: double
+      spanLow:
+        type: number
+        format: double
+      state0:
+        type: string
+      state1:
+        type: string
+      state2:
+        type: string
+      state3:
+        type: string
+      state4:
+        type: string
+      state5:
+        type: string
+      state6:
+        type: string
+      state7:
+        type: string
+      formula:
+        type: string
+      interval:
+        type: string
+      startAt:
+        type: string
+        format: date-time
+      enable:
+        type: boolean
+      tags:
+        type: array
+        items:
+          type: object
+          properties:
+            nodeId:
+              type: string
+            deviceId:
+              type: string
+            tagName:
+              type: string
+            alias:
+              type: string
+    required:
+      - description
+    additionalProperties: false
+  TagInsert__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      tagType:
+        type: number
+        format: double
+      description:
+        type: string
+      readOnly:
+        type: boolean
+      arraySize:
+        type: number
+        format: double
+      engUnit:
+        type: string
+      fraDspFmt:
+        type: number
+        format: double
+      spanHigh:
+        type: number
+        format: double
+      spanLow:
+        type: number
+        format: double
+      state0:
+        type: string
+      state1:
+        type: string
+      state2:
+        type: string
+      state3:
+        type: string
+      state4:
+        type: string
+      state5:
+        type: string
+      state6:
+        type: string
+      state7:
+        type: string
+      formula:
+        type: string
+      interval:
+        type: string
+      startAt:
+        type: string
+        format: date-time
+      enable:
+        type: boolean
+      tags:
+        type: array
+        items:
+          type: object
+          properties:
+            nodeId:
+              type: string
+            deviceId:
+              type: string
+            tagName:
+              type: string
+            alias:
+              type: string
+    additionalProperties: false
+  TagInsertResponse__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+    additionalProperties: false
+  HistDataLog__v1_0:
+    properties:
+      tags:
+        type: array
+        items:
+          $ref: '#/definitions/TagReqDataLog__v1_0'
+      startTs:
+        type: string
+        format: date-time
+      interval:
+        default: 1
+        type: number
+        format: double
+      intervalType:
+        default: second
+        type: string
+      count:
+        default: 10000
+        type: number
+        format: double
+    required:
+      - tags
+    additionalProperties: false
+  HistDataLogResp__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      values:
+        type: array
+        items:
+          $ref: '#/definitions/Value__v1_0'
+      count:
+        type: number
+        format: double
+      dataType:
+        type: string
+    required:
+      - nodeId
+      - deviceId
+      - tagName
+    additionalProperties: false
+  HistRawData__v1_0:
+    properties:
+      tags:
+        type: array
+        items:
+          $ref: '#/definitions/TagReqHistRaw__v1_0'
+      startTs:
+        type: string
+        format: date-time
+      endTs:
+        type: string
+        format: date-time
+      desc:
+        default: false
+        type: boolean
+      count:
+        default: 10000
+        type: number
+        format: double
+    required:
+      - tags
+    additionalProperties: false
+  HistDataResp__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      values:
+        type: array
+        items:
+          $ref: '#/definitions/Value__v1_0'
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    additionalProperties: false
+  HistRawDataPage__v1_0:
+    properties:
+      tags:
+        type: array
+        items:
+          $ref: '#/definitions/TagReqHistRawPage__v1_0'
+      startTs:
+        type: string
+        format: date-time
+      endTs:
+        type: string
+        format: date-time
+      desc:
+        default: false
+        type: boolean
+    required:
+      - tags
+    additionalProperties: false
+  HistDataRespPage__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      values:
+        type: array
+        items:
+          $ref: '#/definitions/Value__v1_0'
+      pageIndex:
+        type: number
+        format: double
+      pageCount:
+        type: number
+        format: double
+      totalCount:
+        type: number
+        format: double
+    additionalProperties: false
+  TagReq__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+    required:
+      - nodeId
+      - deviceId
+      - tagName
+    additionalProperties: false
+  RealDataModel__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      value:
+        type: object
+      ts:
+        type: string
+        format: date-time
+    additionalProperties: false
+  TagValue__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      value:
+        type: string
+    required:
+      - nodeId
+      - deviceId
+      - tagName
+    additionalProperties: false
+  NodeInstance__v1_0:
+    properties:
+      nodeId:
+        type: string
+    required:
+      - nodeId
+    additionalProperties: false
+  NodeStatus__v1_0:
+    properties:
+      nodeId:
+        type: string
+      status:
+        type: boolean
+      modified:
+        type: boolean
+    required:
+      - nodeId
+      - status
+      - modified
+    additionalProperties: false
+  DeviceInstance__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+    required:
+      - nodeId
+      - deviceId
+    additionalProperties: false
+  DeviceStatus__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      status:
+        type: boolean
+    required:
+      - nodeId
+      - deviceId
+      - status
+    additionalProperties: false
+  AlarmCreateInstance__v1_0:
+    properties:
+      nodeId:
+        type: string
+      code:
+        type: string
+      message:
+        type: string
+      conditionType:
+        type: number
+        format: double
+      lowerLimit:
+        type: number
+        format: double
+      upperLimit:
+        type: number
+        format: double
+      ackable:
+        default: true
+        type: boolean
+      tags:
+        type: array
+        items:
+          $ref: '#/definitions/AlarmCreateTags__v1_0'
+      notifications:
+        type: array
+        items:
+          $ref: '#/definitions/Notification__v1_0'
+    required:
+      - nodeId
+      - code
+      - message
+      - conditionType
+      - ackable
+    additionalProperties: false
+  AlarmCreateResponse__v1_0:
+    properties:
+      alarmId:
+        type: string
+    required:
+      - alarmId
+    additionalProperties: false
+  AlarmList__v1_0:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/AlarmInstance__v1_0'
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    required:
+      - list
+    additionalProperties: false
+  AlarmUpdateInstance__v1_0:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      conditionType:
+        type: number
+        format: double
+      lowerLimit:
+        type: number
+        format: double
+      upperLimit:
+        type: number
+        format: double
+      ackable:
+        type: boolean
+      tags:
+        type: array
+        items:
+          $ref: '#/definitions/AlarmCreateTags__v1_0'
+      notifications:
+        type: array
+        items:
+          $ref: '#/definitions/Notification__v1_0'
+    required:
+      - code
+    additionalProperties: false
+  AlarmDataQuery__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      startTs:
+        type: string
+        format: date-time
+      endTs:
+        type: string
+        format: date-time
+      desc:
+        default: false
+        type: boolean
+      count:
+        default: 10000
+        type: number
+        format: double
+      index:
+        default: 1
+        type: number
+        format: double
+    required:
+      - nodeId
+      - startTs
+      - endTs
+    additionalProperties: false
+  AlarmData__v1_0:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/AlarmRecord__v1_0'
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    required:
+      - list
+    additionalProperties: false
+  AlarmStatusQuery__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      count:
+        default: 10000
+        type: number
+        format: double
+      index:
+        default: 1
+        type: number
+        format: double
+      acked:
+        type: boolean
+    required:
+      - nodeId
+    additionalProperties: false
+  AlarmStatus__v1_0:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/AlarmStatusRecord__v1_0'
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+      id:
+        type: number
+        format: double
+    additionalProperties: false
+  AlarmSyncReq__v1_0:
+    properties:
+      alarmId:
+        type: string
+      type:
+        type: string
+    required:
+      - alarmId
+    additionalProperties: false
+  AlarmAckInstance__v1_0:
+    properties:
+      alarmId:
+        type: string
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+    required:
+      - alarmId
+      - nodeId
+      - deviceId
+      - tagName
+    additionalProperties: false
+  UserInsertInstance__v1_0:
+    properties:
+      userName:
+        description: email foramt
+        type: string
+      email:
+        description: email foramt
+        type: string
+      description:
+        description: scope name
+        type: string
+      roleId:
+        type: string
+    required:
+      - userName
+    additionalProperties: false
+  UserCount__v1_0:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/UserInstance__v1_0'
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    required:
+      - list
+    additionalProperties: false
+  UserInstance__v1_0:
+    properties:
+      userName:
+        type: string
+      email:
+        type: string
+      description:
+        type: string
+      createUser:
+        type: string
+      roleId:
+        type: string
+    required:
+      - userName
+    additionalProperties: false
+  SwitchCurrentOrgReq__v1_0:
+    properties:
+      orgName:
+        type: string
+    additionalProperties: false
+  UserUpdateInstance__v1_0:
+    properties:
+      description:
+        type: string
+      roleId:
+        type: string
+    required:
+      - description
+    additionalProperties: false
+  UserAllowDevice__v1_0:
+    properties:
+      projectId:
+        type: string
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+    required:
+      - projectId
+    additionalProperties: false
+  UserDevices__v1_0:
+    properties:
+      projectId:
+        type: string
+      canRead:
+        type: boolean
+      node:
+        type: array
+        items:
+          type: object
+          properties:
+            nodeId:
+              type: string
+            nodeName:
+              type: string
+            canRead:
+              type: boolean
+            device:
+              type: array
+              items:
+                type: object
+                properties:
+                  deviceId:
+                    type: string
+                  deviceName:
+                    type: string
+                  canRead:
+                    type: boolean
+    additionalProperties: false
+  RoleInsertInstance__v1_0:
+    properties:
+      roleId:
+        type: string
+      description:
+        type: string
+      scope:
+        type: array
+        items:
+          type: string
+    required:
+      - roleId
+      - scope
+    additionalProperties: false
+  RoleGet__v1_0:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/RoleInsertInstance__v1_0'
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    additionalProperties: false
+  RoleUpdateInstance__v1_0:
+    properties:
+      description:
+        type: string
+      scope:
+        type: array
+        items:
+          type: string
+    required:
+      - description
+    additionalProperties: false
+  ScopeModel__v1_0:
+    properties:
+      scopeId:
+        type: string
+      description:
+        type: string
+    required:
+      - scopeId
+    additionalProperties: false
+  SimpleJsonQueryData__v1_0:
+    properties:
+      targets:
+        type: array
+        items:
+          $ref: '#/definitions/SimpleJsonQueryTarget__v1_0'
+      range:
+        type: object
+        properties:
+          from:
+            type: string
+            format: date-time
+          to:
+            type: string
+            format: date-time
+      intervalMs:
+        type: number
+        format: double
+      interval:
+        type: string
+    required:
+      - range
+      - intervalMs
+      - interval
+    additionalProperties: false
+  SimpleJsonQueryResult__v1_0:
+    properties:
+      target:
+        type: string
+      node:
+        type: string
+      device:
+        type: string
+      tag:
+        type: string
+      datapoints:
+        type: array
+        items:
+          type: number
+          format: double
+    required:
+      - node
+    additionalProperties: false
+  SimpleJsonQueryAlarm__v1_0:
+    properties:
+      type:
+        type: string
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      count:
+        default: 10000
+        type: number
+        format: double
+      index:
+        default: 1
+        type: number
+        format: double
+      startTs:
+        type: string
+        format: date-time
+      endTs:
+        type: string
+        format: date-time
+      desc:
+        default: false
+        type: boolean
+    required:
+      - type
+      - nodeId
+    additionalProperties: false
+  SimpleJsonQueryAlarmResult__v1_0:
+    properties:
+      columns:
+        type: array
+        items:
+          type: object
+          properties:
+            text:
+              type: string
+      rows:
+        type: array
+        items:
+          type: array
+          items:
+            type: string
+      type:
+        type: string
+    additionalProperties: false
+  SimpleJsonQueryResponse__v1_0:
+    properties:
+      text:
+        type: string
+      value:
+        type: string
+    required:
+      - text
+      - value
+    additionalProperties: false
+  SimpleJsonQueryNode__v1_0:
+    properties:
+      project:
+        type: string
+    required:
+      - project
+    additionalProperties: false
+  SimpleJsonQueryDevice__v1_0:
+    properties:
+      project:
+        type: string
+      node:
+        type: string
+    required:
+      - project
+      - node
+    additionalProperties: false
+  SimpleJsonQueryTag__v1_0:
+    properties:
+      project:
+        type: string
+      node:
+        type: string
+      device:
+        type: string
+    required:
+      - project
+      - node
+      - device
+    additionalProperties: false
+  SimpleJsonQueryTagResponse__v1_0:
+    properties:
+      text:
+        type: string
+      value:
+        type: string
+      desc:
+        type: string
+    required:
+      - text
+      - value
+    additionalProperties: false
+  SimpleJsonWriteValue__v1_0:
+    properties:
+      value:
+        type: object
+      project:
+        type: string
+      node:
+        type: string
+      device:
+        type: string
+      tag:
+        type: string
+    required:
+      - project
+    additionalProperties: false
+  SSOAuthObject__v1_0:
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+    required:
+      - username
+      - password
+    additionalProperties: false
+  SSOAuthResp__v1_0:
+    properties:
+      status:
+        type: string
+    additionalProperties: false
+  SystemModel__v1_0:
+    properties:
+      paramName:
+        type: string
+      paramValue:
+        type: string
+    required:
+      - paramName
+      - paramValue
+    additionalProperties: false
+  SystemUpdateInstance__v1_0:
+    properties:
+      paramName:
+        type: string
+      paramValue:
+        type: string
+    required:
+      - paramName
+    additionalProperties: false
+  SystemUserInsert__v1_0:
+    properties:
+      userName:
+        type: string
+      email:
+        type: string
+      description:
+        type: string
+      systemAdmin:
+        type: boolean
+      orgRole:
+        type: array
+        items:
+          type: object
+          properties:
+            orgName:
+              type: string
+            roleId:
+              type: string
+    required:
+      - userName
+      - systemAdmin
+    additionalProperties: false
+  SystemUserUpdate__v1_0:
+    properties:
+      description:
+        type: string
+      systemAdmin:
+        type: boolean
+      orgRole:
+        type: array
+        items:
+          type: object
+          properties:
+            orgName:
+              type: string
+            roleId:
+              type: string
+    additionalProperties: false
+  SystemUserGetResponse__v1_0:
+    properties:
+      list:
+        type: array
+        items:
+          type: object
+          properties:
+            userName:
+              type: string
+            email:
+              type: string
+            description:
+              type: string
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    additionalProperties: false
+  SystemUserGetOneResponse__v1_0:
+    properties:
+      userName:
+        type: string
+      email:
+        type: string
+      description:
+        type: string
+      createUser:
+        type: string
+      systemAdmin:
+        type: string
+      orgRole:
+        type: array
+        items:
+          type: object
+          properties:
+            orgName:
+              type: string
+            roleId:
+              type: string
+    additionalProperties: false
+  RpInsertInstance__v1_0:
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      duration:
+        type: number
+        format: double
+      bindAll:
+        default: false
+        type: boolean
+      devices:
+        type: array
+        items:
+          $ref: '#/definitions/RpReqDevice__v1_0'
+    required:
+      - name
+      - duration
+    additionalProperties: false
+  RpResult__v1_0:
+    properties:
+      result:
+        type: boolean
+    additionalProperties: false
+  RetentionPolicyCount__v1_0:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/RpModel__v1_0'
+      totalCount:
+        type: number
+        format: double
+      index:
+        type: number
+        format: double
+      count:
+        type: number
+        format: double
+    additionalProperties: false
+  RpModel__v1_0:
+    properties:
+      name:
+        type: string
+      rpName:
+        type: string
+      rpId:
+        type: string
+      description:
+        type: string
+      duration:
+        type: number
+        format: double
+      devices:
+        type: array
+        items:
+          $ref: '#/definitions/RpReqDevice__v1_0'
+    required:
+      - name
+      - rpId
+      - duration
+    additionalProperties: false
+  RpUpdate__v1_0:
+    properties:
+      description:
+        type: string
+      duration:
+        type: number
+        format: double
+      bindAll:
+        type: boolean
+      devices:
+        type: array
+        items:
+          $ref: '#/definitions/RpReqDevice__v1_0'
+    additionalProperties: false
+  OrgCreate__v1_0:
+    properties:
+      orgName:
+        type: string
+      description:
+        type: string
+      storageSize:
+        default: 0
+        type: number
+        format: double
+      tagQuantity:
+        default: 0
+        type: number
+        format: double
+    additionalProperties: false
+  OrgList__v1_0:
+    properties:
+      orgName:
+        type: string
+      description:
+        type: string
+      storageSize:
+        type: number
+        format: double
+      tagQuantity:
+        type: number
+        format: double
+    additionalProperties: false
+  OrgUpdate__v1_0:
+    properties:
+      orgName:
+        type: string
+      description:
+        type: string
+      storageSize:
+        type: number
+        format: double
+      tagQuantity:
+        type: number
+        format: double
+    additionalProperties: false
+  OrgUserRolePatch__v1_0:
+    properties:
+      roleId:
+        type: string
+    additionalProperties: false
+  x-any:
+    properties: {}
+  DeviceList__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      deviceName:
+        type: string
+    additionalProperties: false
+  TagList__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+    additionalProperties: false
+  TagModel__v1_0:
+    properties:
+      tagName:
+        type: string
+      deviceId:
+        type: string
+      nodeId:
+        type: string
+      tagType:
+        type: number
+        format: double
+      description:
+        type: string
+      arraySize:
+        type: number
+        format: double
+      readOnly:
+        type: boolean
+    required:
+      - tagName
+      - deviceId
+      - nodeId
+    additionalProperties: false
+  TagReqDataLog__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      dataType:
+        default: last
+        type: string
+      continuous:
+        default: true
+        type: boolean
+    required:
+      - nodeId
+      - deviceId
+      - tagName
+    additionalProperties: false
+  Value__v1_0:
+    properties:
+      value:
+        type: object
+      ts:
+        type: string
+        format: date-time
+    required:
+      - value
+    additionalProperties: false
+  TagReqHistRaw__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+    required:
+      - nodeId
+      - deviceId
+      - tagName
+    additionalProperties: false
+  TagReqHistRawPage__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      pageIndex:
+        default: 1
+        type: number
+        format: double
+      pageCount:
+        default: 10000
+        type: number
+        format: double
+      filter:
+        type: object
+        properties:
+          type:
+            type: string
+          values:
+            type: array
+            items:
+              $ref: '#/definitions/x-any'
+          tagName:
+            type: string
+    required:
+      - nodeId
+      - deviceId
+      - tagName
+    additionalProperties: false
+  AlarmCreateTags__v1_0:
+    properties:
+      deviceId:
+        type: string
+      tagName:
+        type: string
+    required:
+      - deviceId
+      - tagName
+    additionalProperties: false
+  Notification__v1_0:
+    properties:
+      event:
+        type: number
+        format: double
+      groupId:
+        type: string
+    additionalProperties: false
+  AlarmInstance__v1_0:
+    properties:
+      alarmId:
+        type: string
+      nodeId:
+        type: string
+      nodeName:
+        type: string
+      code:
+        type: string
+      message:
+        type: string
+      conditionType:
+        type: number
+        format: double
+      lowerLimit:
+        type: number
+        format: double
+      upperLimit:
+        type: number
+        format: double
+      instanceLaunched:
+        type: boolean
+      ackable:
+        type: boolean
+      tags:
+        type: array
+        items:
+          $ref: '#/definitions/AlarmTag__v1_0'
+      notifications:
+        type: array
+        items:
+          $ref: '#/definitions/Notification__v1_0'
+    required:
+      - alarmId
+    additionalProperties: false
+  AlarmRecord__v1_0:
+    properties:
+      alarmId:
+        type: string
+      nodeId:
+        type: string
+      nodeName:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      value:
+        type: number
+        format: double
+      ts:
+        type: string
+        format: date-time
+      ackTs:
+        type: string
+        format: date-time
+      clearTs:
+        type: string
+        format: date-time
+      code:
+        type: string
+      message:
+        type: string
+      deviceName:
+        type: string
+    required:
+      - alarmId
+    additionalProperties: false
+  AlarmStatusRecord__v1_0:
+    properties:
+      alarmId:
+        type: string
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+      tagName:
+        type: string
+      value:
+        type: number
+        format: double
+      ts:
+        type: string
+        format: date-time
+      acked:
+        type: boolean
+      ackTs:
+        type: string
+        format: date-time
+      nodeName:
+        type: string
+      deviceName:
+        type: string
+      code:
+        type: string
+      message:
+        type: string
+    required:
+      - alarmId
+    additionalProperties: false
+  SimpleJsonQueryTarget__v1_0:
+    properties:
+      displayName:
+        type: string
+      target:
+        type: string
+      dataType:
+        type: string
+      project:
+        type: string
+      node:
+        type: string
+      device:
+        type: string
+      tag:
+        type: string
+      continuous:
+        default: true
+        type: boolean
+      convert:
+        default: false
+        type: boolean
+    required:
+      - target
+    additionalProperties: false
+  RpReqDevice__v1_0:
+    properties:
+      nodeId:
+        type: string
+      deviceId:
+        type: string
+    required:
+      - nodeId
+      - deviceId
+    additionalProperties: false
+  AlarmTag__v1_0:
+    properties:
+      deviceId:
+        type: string
+      deviceName:
+        type: string
+      tagName:
+        type: string
+    required:
+      - deviceId
+    additionalProperties: false
+```

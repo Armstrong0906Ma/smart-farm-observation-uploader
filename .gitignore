@@ -1,0 +1,14 @@
+.next/
+node_modules/
+dist/
+coverage/
+.env
+.env.local
+.env.*.local
+*firebase-adminsdk*.json
+service-account*.json
+*.log
+*_config.json
+*_recover.sqlite.db
+*.sqlite.db
+tsconfig.tsbuildinfo
