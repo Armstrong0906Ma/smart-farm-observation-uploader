@@ -23,7 +23,7 @@ DATAHUB_UPLOADER=mock
 For real DataHub upload:
 
 ```powershell
-DATAHUB_UPLOADER=datahub-node-sdk
+DATAHUB_UPLOADER=datahub-node-sdk    mock
 DATAHUB_DCCS_CREDENTIAL_KEY=your-credential-key
 DATAHUB_NODE_ID=fac73565-5615-4af0-9bd9-2350ddb621cb
 DATAHUB_DCCS_API_URL=https://api-dccs-ensaas.education.wise-paas.com/

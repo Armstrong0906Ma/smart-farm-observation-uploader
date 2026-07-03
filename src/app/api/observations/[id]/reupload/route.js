@@ -6,7 +6,8 @@ import { uploadObservationAndRecord } from '@/lib/uploadObservationFlow';
 export async function POST(request, { params }) {
   try {
     await requireUser(request);
-    const observation = await getObservation(params.id);
+    const { id } = await params;
+    const observation = await getObservation(id);
     if (!observation) {
       const error = new Error('找不到觀測資料');
       error.status = 404;

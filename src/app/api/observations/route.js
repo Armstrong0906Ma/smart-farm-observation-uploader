@@ -7,8 +7,11 @@ export async function GET(request) {
   try {
     await requireUser(request);
     const { searchParams } = new URL(request.url);
-    const observations = await listObservations(searchParams.get('limit') || 20);
-    return json({ observations });
+    const result = await listObservations({
+      page: searchParams.get('page') || 1,
+      limit: searchParams.get('limit') || 10
+    });
+    return json(result);
   } catch (error) {
     return errorResponse(error);
   }

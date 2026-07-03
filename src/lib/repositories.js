@@ -165,10 +165,24 @@ export async function getObservation(id) {
   return doc.exists ? cleanDoc(doc) : null;
 }
 
-export async function listObservations(limit = 20) {
-  const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 100);
-  const snapshot = await firestore.collection('observations').orderBy('createdAt', 'desc').limit(safeLimit).get();
-  return snapshot.docs.map(cleanDoc);
+export async function listObservations({ page = 1, limit = 10 } = {}) {
+  const safeLimit = Math.min(Math.max(Number(limit) || 10, 1), 50);
+  const safePage = Math.max(Number(page) || 1, 1);
+  const snapshot = await firestore
+    .collection('observations')
+    .orderBy('createdAt', 'desc')
+    .offset((safePage - 1) * safeLimit)
+    .limit(safeLimit + 1)
+    .get();
+  const docs = snapshot.docs.map(cleanDoc);
+
+  return {
+    observations: docs.slice(0, safeLimit),
+    page: safePage,
+    pageSize: safeLimit,
+    hasNext: docs.length > safeLimit,
+    hasPrev: safePage > 1
+  };
 }
 
 export async function listUnsyncedObservations(limit = 500) {

@@ -6,7 +6,8 @@ import { observationUpdateSchema } from '@/lib/validation';
 export async function GET(request, { params }) {
   try {
     await requireUser(request);
-    const observation = await getObservation(params.id);
+    const { id } = await params;
+    const observation = await getObservation(id);
     if (!observation) {
       const error = new Error('找不到觀測資料');
       error.status = 404;
@@ -21,6 +22,7 @@ export async function GET(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     await requireUser(request);
+    const { id } = await params;
     const payload = observationUpdateSchema.parse(await request.json());
     const plant = await getPlant(payload.plantId);
     if (!plant || !plant.enabled) {
@@ -28,7 +30,7 @@ export async function PATCH(request, { params }) {
       error.status = 400;
       throw error;
     }
-    const observation = await updateUnsyncedObservation(params.id, payload);
+    const observation = await updateUnsyncedObservation(id, payload);
     return json({ observation });
   } catch (error) {
     if (error.name === 'ZodError') {
@@ -42,7 +44,8 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     await requireUser(request);
-    await deleteUnsyncedObservation(params.id);
+    const { id } = await params;
+    await deleteUnsyncedObservation(id);
     return json({ ok: true });
   } catch (error) {
     return errorResponse(error);

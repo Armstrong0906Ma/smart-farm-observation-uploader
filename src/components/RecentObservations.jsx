@@ -25,6 +25,8 @@ function toLocalInputValue(value) {
 export function RecentObservations() {
   const { getIdToken } = useAuth();
   const [observations, setObservations] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10, hasNext: false, hasPrev: false });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
@@ -38,10 +40,16 @@ export function RecentObservations() {
     if (options.clearMessage !== false) setMessage(null);
     try {
       const token = await getIdToken();
-      const response = await fetch('/api/observations?limit=20', { headers: { Authorization: `Bearer ${token}` } });
+      const response = await fetch(`/api/observations?limit=10&page=${page}`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || '讀取失敗');
       setObservations(data.observations);
+      setPageInfo({
+        page: data.page,
+        pageSize: data.pageSize,
+        hasNext: data.hasNext,
+        hasPrev: data.hasPrev
+      });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -50,10 +58,20 @@ export function RecentObservations() {
   }
 
   useEffect(() => {
-    load();
-    window.addEventListener('observations:changed', load);
-    return () => window.removeEventListener('observations:changed', load);
-  }, []);
+    load({ clearMessage: false });
+  }, [page]);
+
+  useEffect(() => {
+    function reloadFromFirstPage() {
+      if (page === 1) {
+        load();
+      } else {
+        setPage(1);
+      }
+    }
+    window.addEventListener('observations:changed', reloadFromFirstPage);
+    return () => window.removeEventListener('observations:changed', reloadFromFirstPage);
+  }, [page]);
 
   function startEdit(item) {
     setEditingId(item.id);
@@ -94,6 +112,7 @@ export function RecentObservations() {
     setEditingId(null);
     setEditForm(null);
     setMessage('已更新，狀態維持尚未同步');
+    if (page !== 1) setPage(1);
     await load({ clearMessage: false });
   }
 
@@ -120,6 +139,7 @@ export function RecentObservations() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || '同步失敗');
       setMessage(`同步完成：成功 ${data.uploaded} 筆，失敗 ${data.failed} 筆`);
+      if (page !== 1) setPage(1);
       await load({ clearMessage: false });
     } catch (err) {
       setError(err.message);
@@ -150,6 +170,11 @@ export function RecentObservations() {
         </button>
       </div>
       {!loading && observations.length === 0 && <p className="muted">尚無觀測資料。</p>}
+      <div className="pager">
+        <button className="smallButton" onClick={() => setPage(current => Math.max(current - 1, 1))} disabled={!pageInfo.hasPrev || loading}>上一頁</button>
+        <span className="recordMeta">第 {pageInfo.page} 頁，每頁 10 筆</span>
+        <button className="smallButton" onClick={() => setPage(current => current + 1)} disabled={!pageInfo.hasNext || loading}>下一頁</button>
+      </div>
       <div className="records">
         {observations.map(item => (
           <article className="record" key={item.id}>

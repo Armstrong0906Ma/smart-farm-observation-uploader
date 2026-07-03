@@ -118,6 +118,7 @@ h2 { font-size: 22px; margin-bottom: 16px; }
 }
 
 .smallButton { padding: 7px 11px; font-size: 13px; }
+.smallButton:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .notice {
   border-radius: 14px;
@@ -133,6 +134,14 @@ h2 { font-size: 22px; margin-bottom: 16px; }
 
 .syncPanel {
   display: grid;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
   margin: 14px 0;
 }
