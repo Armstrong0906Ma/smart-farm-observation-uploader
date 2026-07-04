@@ -164,7 +164,7 @@ export function ImportObservations() {
     }
   }
 
-  const preview = parsed?.observations.slice(0, 10) || [];
+  const preview = parsed?.observations || [];
   const canSync = Boolean(parsed?.observations.length) && parsed.errors.length === 0 && !syncing;
 
   return (

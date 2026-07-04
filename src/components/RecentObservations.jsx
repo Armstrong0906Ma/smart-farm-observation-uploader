@@ -73,6 +73,12 @@ export function RecentObservations() {
     return () => window.removeEventListener('observations:changed', reloadFromFirstPage);
   }, [page]);
 
+  useEffect(() => {
+    if (!message) return undefined;
+    const timer = window.setTimeout(() => setMessage(null), 3000);
+    return () => window.clearTimeout(timer);
+  }, [message]);
+
   function startEdit(item) {
     setEditingId(item.id);
     setEditForm({

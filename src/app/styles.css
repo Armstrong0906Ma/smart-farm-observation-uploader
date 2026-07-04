@@ -187,7 +187,9 @@ h2 { font-size: 22px; margin-bottom: 16px; }
 }
 
 .previewTableWrap {
+  max-height: 420px;
   overflow-x: auto;
+  overflow-y: auto;
   border: 1px solid var(--line);
   border-radius: 14px;
 }

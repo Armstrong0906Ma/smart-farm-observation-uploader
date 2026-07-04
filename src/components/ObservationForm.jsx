@@ -36,6 +36,12 @@ export function ObservationForm() {
     loadPlants().catch(error => setMessage({ type: 'error', text: error.message }));
   }, [getIdToken]);
 
+  useEffect(() => {
+    if (!message || message.type === 'error') return undefined;
+    const timer = window.setTimeout(() => setMessage(null), 3000);
+    return () => window.clearTimeout(timer);
+  }, [message]);
+
   function updateField(name, value) {
     setForm(current => ({ ...current, [name]: value }));
   }
