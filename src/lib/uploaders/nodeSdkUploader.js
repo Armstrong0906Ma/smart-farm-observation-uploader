@@ -30,15 +30,25 @@ function waitForEvent(agent, eventName, timeoutMs) {
   });
 }
 
-export async function uploadWithDataHubNodeSdk(observation) {
+function makeEdgeData(EdgeData, EdgeDataTag, observation) {
+  const timestampMs = new Date(observation.observedAt).getTime();
+  if (!Number.isFinite(timestampMs)) throw new Error('Invalid observation observedAt');
+
+  const data = new EdgeData();
+  data.ts = timestampMs;
+  data.tagList.push(makeTag(EdgeDataTag, observation.plantId, 'height', observation.height));
+  data.tagList.push(makeTag(EdgeDataTag, observation.plantId, 'nodes', observation.nodes));
+  data.tagList.push(makeTag(EdgeDataTag, observation.plantId, 'plant', observation.plantId));
+  return { data, timestampMs };
+}
+
+async function createConnectedAgent() {
   const credentialKey = process.env.DATAHUB_DCCS_CREDENTIAL_KEY;
   if (!credentialKey) throw new Error('Missing DATAHUB_DCCS_CREDENTIAL_KEY');
 
   // The SDK mutates NODE_TLS_REJECT_UNAUTHORIZED when imported, so load it only for real uploads.
   const { EdgeAgent, EdgeData, EdgeDataTag, constant } = await import('wisepaas-datahub-edge-nodejs-sdk');
   const nodeId = process.env.DATAHUB_NODE_ID || DEFAULT_NODE_ID;
-  const timestampMs = new Date(observation.observedAt).getTime();
-  if (!Number.isFinite(timestampMs)) throw new Error('Invalid observation observedAt');
 
   const agent = new EdgeAgent({
     nodeId,
@@ -52,18 +62,50 @@ export async function uploadWithDataHubNodeSdk(observation) {
     }
   });
 
-  const data = new EdgeData();
-  data.ts = timestampMs;
-  data.tagList.push(makeTag(EdgeDataTag, observation.plantId, 'height', observation.height));
-  data.tagList.push(makeTag(EdgeDataTag, observation.plantId, 'nodes', observation.nodes));
-  data.tagList.push(makeTag(EdgeDataTag, observation.plantId, 'plant', observation.plantId));
-
   const connected = waitForEvent(agent, 'connected', Number(process.env.DATAHUB_CONNECT_TIMEOUT_MS || 30000));
   await agent.connect();
   await connected;
-  await agent.sendData(data);
-  await new Promise(resolve => setTimeout(resolve, Number(process.env.DATAHUB_PUBLISH_WAIT_MS || 1500)));
-  await agent.disconnect().catch(() => {});
+
+  return { agent, EdgeData, EdgeDataTag };
+}
+
+export async function uploadWithDataHubNodeSdk(observation) {
+  const { agent, EdgeData, EdgeDataTag } = await createConnectedAgent();
+  const { data, timestampMs } = makeEdgeData(EdgeData, EdgeDataTag, observation);
+
+  try {
+    await agent.sendData(data);
+    await new Promise(resolve => setTimeout(resolve, Number(process.env.DATAHUB_PUBLISH_WAIT_MS || 1500)));
+  } finally {
+    await agent.disconnect().catch(() => {});
+  }
 
   return { adapter: 'datahub-node-sdk', timestampMs };
+}
+
+export async function uploadManyWithDataHubNodeSdk(observations, { onResult } = {}) {
+  const { agent, EdgeData, EdgeDataTag } = await createConnectedAgent();
+  const results = [];
+
+  try {
+    for (const [index, observation] of observations.entries()) {
+      try {
+        const { data, timestampMs } = makeEdgeData(EdgeData, EdgeDataTag, observation);
+        await agent.sendData(data);
+        const result = { index, adapter: 'datahub-node-sdk', status: 'uploaded', timestampMs };
+        results.push(result);
+        if (onResult) await onResult(result);
+      } catch (error) {
+        const result = { index, adapter: 'datahub-node-sdk', status: 'failed', error: error.message };
+        results.push(result);
+        if (onResult) await onResult(result);
+      }
+    }
+
+    await new Promise(resolve => setTimeout(resolve, Number(process.env.DATAHUB_PUBLISH_WAIT_MS || 1500)));
+  } finally {
+    await agent.disconnect().catch(() => {});
+  }
+
+  return results;
 }

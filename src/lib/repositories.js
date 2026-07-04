@@ -5,6 +5,8 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+let defaultPlantsEnsured = false;
+
 function observationId(plantId, observedAt) {
   const timestampMs = new Date(observedAt).getTime();
   if (!Number.isFinite(timestampMs)) throw new Error('observedAt 格式錯誤');
@@ -20,16 +22,24 @@ function cleanDoc(doc) {
 }
 
 export async function ensureDefaultPlants() {
-  const snapshot = await firestore.collection('plants').limit(1).get();
-  if (!snapshot.empty) return;
+  if (defaultPlantsEnsured) return;
 
+  const plants = defaultPlants();
+  const refs = plants.map(plant => firestore.collection('plants').doc(plant.plantId));
+  const docs = await firestore.getAll(...refs);
   const batch = firestore.batch();
   const timestamp = nowIso();
-  for (const plant of defaultPlants()) {
-    const ref = firestore.collection('plants').doc(plant.plantId);
-    batch.set(ref, { ...plant, createdAt: timestamp, updatedAt: timestamp });
+  let missingCount = 0;
+
+  for (const [index, doc] of docs.entries()) {
+    if (!doc.exists) {
+      batch.set(refs[index], { ...plants[index], createdAt: timestamp, updatedAt: timestamp });
+      missingCount += 1;
+    }
   }
-  await batch.commit();
+
+  if (missingCount > 0) await batch.commit();
+  defaultPlantsEnsured = true;
 }
 
 export async function listPlants() {
@@ -200,4 +210,73 @@ export async function listUnsyncedObservations(limit = 500) {
 
 export async function addUploadAttempt(attempt) {
   await firestore.collection('uploadAttempts').add({ ...attempt, createdAt: nowIso() });
+}
+
+export async function createImportBatch({ fileName, format, total, user }) {
+  const timestamp = nowIso();
+  const ref = firestore.collection('importBatches').doc();
+  const batch = {
+    fileName: fileName || '',
+    format: format || '',
+    total,
+    uploaded: 0,
+    failed: 0,
+    status: 'syncing',
+    createdBy: user.uid,
+    createdAt: timestamp,
+    updatedAt: timestamp
+  };
+
+  await ref.set(batch);
+  return { id: ref.id, ...batch };
+}
+
+export async function finishImportBatch(batchId, { uploaded, failed }) {
+  const timestamp = nowIso();
+  const status = uploaded === 0 && failed > 0 ? 'failed' : failed > 0 ? 'partial_failed' : 'uploaded';
+  const ref = firestore.collection('importBatches').doc(batchId);
+  await ref.update({ uploaded, failed, status, updatedAt: timestamp, completedAt: timestamp });
+  const doc = await ref.get();
+  return cleanDoc(doc);
+}
+
+export async function updateImportBatchProgress(batchId, { uploaded, failed }) {
+  const ref = firestore.collection('importBatches').doc(batchId);
+  await ref.update({ uploaded, failed, updatedAt: nowIso() });
+}
+
+export async function listRecentImportBatches(limit = 20) {
+  const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 50);
+  const snapshot = await firestore
+    .collection('importBatches')
+    .orderBy('createdAt', 'desc')
+    .limit(safeLimit)
+    .get();
+
+  return snapshot.docs.map(cleanDoc);
+}
+
+export async function saveImportBatchItem(batchId, item) {
+  const timestamp = nowIso();
+  const ref = firestore
+    .collection('importBatches')
+    .doc(batchId)
+    .collection('items')
+    .doc(String(item.index).padStart(6, '0'));
+
+  await ref.set({ ...item, updatedAt: timestamp }, { merge: true });
+}
+
+export async function saveImportBatchItems(batchId, items) {
+  const timestamp = nowIso();
+  const collection = firestore.collection('importBatches').doc(batchId).collection('items');
+
+  for (let start = 0; start < items.length; start += 450) {
+    const batch = firestore.batch();
+    items.slice(start, start + 450).forEach(item => {
+      const ref = collection.doc(String(item.index).padStart(6, '0'));
+      batch.set(ref, { ...item, createdAt: timestamp, updatedAt: timestamp });
+    });
+    await batch.commit();
+  }
 }

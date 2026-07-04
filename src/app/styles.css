@@ -70,6 +70,7 @@ h2 { font-size: 22px; margin-bottom: 16px; }
 }
 
 .muted { color: var(--muted); line-height: 1.7; }
+.compactText { margin: 0; line-height: 1.55; }
 
 .grid {
   display: grid;
@@ -78,6 +79,8 @@ h2 { font-size: 22px; margin-bottom: 16px; }
 }
 
 .formGrid { display: grid; gap: 14px; }
+
+.stack { display: grid; gap: 18px; align-content: start; }
 
 .field { display: grid; gap: 7px; }
 .field span { font-weight: 700; font-size: 14px; }
@@ -164,6 +167,81 @@ h2 { font-size: 22px; margin-bottom: 16px; }
 
 .recordTitle { font-weight: 800; }
 .recordMeta { color: var(--muted); font-size: 13px; }
+
+.importCard { display: grid; gap: 10px; }
+
+.importCard h2 { margin-bottom: 0; }
+
+.importControls, .importSummary {
+  display: grid;
+  gap: 12px;
+}
+
+.errorList {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #ffd8d5;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: #fff8f7;
+}
+
+.previewTableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.previewTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 440px;
+  background: #fbfdfb;
+}
+
+.previewTable th, .previewTable td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  font-size: 13px;
+}
+
+.previewTable th {
+  color: var(--green-dark);
+  background: #edf8ed;
+}
+
+.previewTable tr:last-child td { border-bottom: 0; }
+
+.runningBatches {
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.progressItem {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  background: #fbfdfb;
+}
+
+.progressTrack {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dfe9dc;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--green), #5fae72);
+  transition: width 0.25s ease;
+}
 
 .actionRow {
   display: flex;

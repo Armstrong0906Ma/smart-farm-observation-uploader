@@ -1,6 +1,7 @@
 'use client';
 
 import { AuthProvider, useAuth } from '@/components/AuthProvider';
+import { ImportObservations } from '@/components/ImportObservations';
 import { ObservationForm } from '@/components/ObservationForm';
 import { RecentObservations } from '@/components/RecentObservations';
 
@@ -35,7 +36,10 @@ function HomeContent() {
         <button className="ghostButton" onClick={signOut}>登出</button>
       </header>
       <div className="grid">
-        <ObservationForm />
+        <div className="stack">
+          <ObservationForm />
+          <ImportObservations />
+        </div>
         <RecentObservations />
       </div>
     </main>

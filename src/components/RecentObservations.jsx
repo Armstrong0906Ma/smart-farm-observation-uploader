@@ -153,6 +153,7 @@ export function RecentObservations() {
     return acc;
   }, {});
   const unsyncedCount = (counts.pending || 0) + (counts.failed || 0);
+  const hasUnsavedEdit = Boolean(editingId);
 
   return (
     <section className="card">
@@ -165,7 +166,8 @@ export function RecentObservations() {
       {message && <div className="notice">{message}</div>}
       <div className="syncPanel">
         <div className="recordMeta">尚未同步 {counts.pending || 0} 筆，同步失敗 {counts.failed || 0} 筆，已同步 {counts.uploaded || 0} 筆</div>
-        <button className="primaryButton" onClick={syncAll} disabled={syncing || unsyncedCount === 0}>
+        {hasUnsavedEdit && <div className="recordMeta">請先儲存或取消目前修改，再同步到 DataHub。</div>}
+        <button className="primaryButton" onClick={syncAll} disabled={syncing || unsyncedCount === 0 || hasUnsavedEdit}>
           {syncing ? '同步中...' : `確認同步到 DataHub (${unsyncedCount})`}
         </button>
       </div>
