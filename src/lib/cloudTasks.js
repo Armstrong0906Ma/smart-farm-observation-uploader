@@ -6,12 +6,13 @@ function config() {
   const values = {
     project: process.env.TASKS_PROJECT_ID,
     location: process.env.TASKS_LOCATION,
-    queue: process.env.TASKS_QUEUE,
+    modelingQueue: process.env.TASKS_MODELING_QUEUE || process.env.TASKS_QUEUE,
+    dataHubQueue: process.env.TASKS_DATAHUB_QUEUE || process.env.TASKS_QUEUE,
     handlerUrl: process.env.TASK_HANDLER_URL,
     token: process.env.INTERNAL_TASK_TOKEN,
     serviceAccountEmail: process.env.TASK_SERVICE_ACCOUNT_EMAIL || null
   };
-  const required = ['project', 'location', 'queue', 'handlerUrl', 'token'];
+  const required = ['project', 'location', 'modelingQueue', 'dataHubQueue', 'handlerUrl', 'token'];
   const configured = required.filter(key => values[key]).length;
   if (configured === 0) return null;
   if (configured !== required.length) {
@@ -28,7 +29,8 @@ async function enqueue(kind, id, path, payload) {
   const settings = config();
   if (!settings) return false;
   client ||= new CloudTasksClient();
-  const parent = client.queuePath(settings.project, settings.location, settings.queue);
+  const queue = kind === 'modeling' ? settings.modelingQueue : settings.dataHubQueue;
+  const parent = client.queuePath(settings.project, settings.location, queue);
   const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '-');
   const headers = { 'Content-Type': 'application/json' };
   if (settings.serviceAccountEmail) headers['X-Internal-Task-Token'] = settings.token;
@@ -46,7 +48,7 @@ async function enqueue(kind, id, path, payload) {
     };
   }
   const task = {
-    name: client.taskPath(settings.project, settings.location, settings.queue, `${kind}-${safeId}`),
+    name: client.taskPath(settings.project, settings.location, queue, `${kind}-${safeId}`),
     httpRequest
   };
   try {

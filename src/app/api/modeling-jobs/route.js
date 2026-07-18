@@ -37,16 +37,23 @@ async function imageData(file) {
 
 export async function POST(request) {
   let job;
+  let created = false;
   try {
     const user = await requireUser(request);
     const useTasks = cloudTasksEnabled();
     const form = await request.formData();
     const plantId = String(form.get('plantId') || '').trim();
     const observedAt = String(form.get('observedAt') || '');
+    const submissionKey = String(form.get('submissionKey') || '').trim();
     const front = form.get('front');
     const right = form.get('right');
     if (!plantId || !Number.isFinite(new Date(observedAt).getTime())) {
       const error = new Error('植株編號或觀測時間格式錯誤');
+      error.status = 400;
+      throw error;
+    }
+    if (!/^[A-Za-z0-9_-]{8,128}$/.test(submissionKey)) {
+      const error = new Error('Submission idempotency key is missing or invalid');
       error.status = 400;
       throw error;
     }
@@ -59,7 +66,15 @@ export async function POST(request) {
       throw error;
     }
 
-    job = await createModelingJob({ plantId, observedAt: new Date(observedAt).toISOString(), user });
+    const createdJob = await createModelingJob({
+      plantId,
+      observedAt: new Date(observedAt).toISOString(),
+      submissionKey,
+      user
+    });
+    job = createdJob.job;
+    created = createdJob.created;
+    if (!created) return json({ job, replayed: true }, 200);
     const images = { front: await imageData(front), right: await imageData(right) };
     if (useTasks) {
       await saveModelingSourceImages(job.id, images);
@@ -74,7 +89,7 @@ export async function POST(request) {
     }) || job;
     return json({ job }, 202);
   } catch (error) {
-    if (job) {
+    if (job && created) {
       await transitionModelingJob(job.id, ['queued', 'dispatching', 'processing'], {
         status: 'failed',
         error: error.message

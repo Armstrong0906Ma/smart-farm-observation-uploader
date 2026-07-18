@@ -17,26 +17,29 @@ const internodeStatisticsSchema = z.object({
   internodes_16_and_above: internodeSummarySchema
 });
 
-export const observationCreateSchema = z.object({
+export const publicObservationCreateSchema = z.object({
   plantId: z.string().min(1),
   observedAt: z.string().datetime(),
   height: z.number().finite(),
   nodes: z.number().int().nonnegative(),
   internodeStatistics: internodeStatisticsSchema.optional(),
-  gifUrl: z.string().url().nullable().optional(),
-  glbUrl: z.string().url().nullable().optional(),
-  annotatedGlbUrl: z.string().url().nullable().optional(),
-  measurementUrl: z.string().url().nullable().optional(),
-  modelingJobId: z.string().nullable().optional(),
-  source: z.enum(['manual', 'csv_import', 'robot_vision', 'api']).default('manual'),
   note: z.string().optional().default('')
-});
+}).strict();
+
+const artifactUrlSchema = z.string().url().refine(value => {
+  const url = new URL(value);
+  return url.protocol === 'https:'
+    && !url.username
+    && !url.password
+    && url.pathname !== '/'
+    && (url.hostname === 'storage.googleapis.com' || url.hostname.endsWith('.storage.googleapis.com'));
+}, 'Artifact URL must be a public GCS HTTPS URL');
 
 export const modelingResultSchema = z.discriminatedUnion('status', [
   z.object({
     status: z.literal('failed'),
     error: z.string().min(1)
-  }),
+  }).strict(),
   z.object({
     status: z.literal('succeeded'),
     plantId: z.string().min(1),
@@ -44,11 +47,12 @@ export const modelingResultSchema = z.discriminatedUnion('status', [
     height: z.number().finite(),
     nodes: z.number().int().nonnegative(),
     internodeStatistics: internodeStatisticsSchema,
-    gifUrl: z.string().url().nullable(),
-    glbUrl: z.string().url(),
-    annotatedGlbUrl: z.string().url(),
-    measurementUrl: z.string().url()
-  })
+    gifUrl: artifactUrlSchema.nullable(),
+    glbUrl: artifactUrlSchema,
+    annotatedGlbUrl: artifactUrlSchema,
+    measurementUrl: artifactUrlSchema,
+    nodesCsvUrl: artifactUrlSchema
+  }).strict()
 ]);
 
 export const modelingTaskSchema = z.object({

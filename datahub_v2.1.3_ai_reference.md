@@ -263,7 +263,7 @@
 *  前端整合使用 Cookie 驗證: 已登入 WISE-PaaS，EIToken 被設置至 cookie，可以直接使用
 
 *  後端整合使用 HTTP Request Header 驗證: 將 header 設置 Authorization: Bearer [ 你的 token ]
-例如： Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJjb3VudHJ5IjoiIiwiY3JlYXRpb25UaW1lIjoxNTg0NDk4MDU0LCJleHAiOjE1ODgwNTg2ODAsImZpcnN0TmFtZSI6IlVzZXIiLCJpYXQiOjE1ODgwNTUwODAsImlkIjoiOTQwODU0NzgtOTk1MS00MGZiLWJiMDAtNjg3YzlhZDIyMjA0IiwiaXNzIjoid2lzZS1wYWFzIiwibGFzdE1vZGlmaWVkVGltZSI6MTU4Njc2NzQyNCwibGFzdE5hbWUiOiJBcHAiLCJyZWZyZXNoVG9rZW4iOiJmMGNkNDAxOC04OTE4LTExZWEtODliOC1hMjhjMzQ2NmQwNDEiLCJzdGF0dXMiOiJBY3RpdmUiLCJ1c2VybmFtZSI6ImdhcnkucGFuQGFkdmFudGVjaC5jb20udHcifQ.H94wl4Yz9LyiHaRWAashuVGC2H95TlJfW1i481fry4Vik---
+例如： Authorization: Bearer <redacted-token>
 
 # Real Data - Convert
 

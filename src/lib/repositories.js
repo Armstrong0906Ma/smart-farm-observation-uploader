@@ -7,6 +7,11 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+function dataHubClaimTimeoutMs() {
+  const value = Number(process.env.DATAHUB_CLAIM_TIMEOUT_MS || 10 * 60 * 1000);
+  return Number.isFinite(value) && value > 0 ? value : 10 * 60 * 1000;
+}
+
 function canModifyObservation(observation) {
   return observation.uploadStatus === 'pending' || observation.uploadStatus === 'failed';
 }
@@ -20,6 +25,7 @@ function cleanDoc(doc) {
 function duplicateObservationError() {
   const error = new Error('同一植株與觀測時間已存在，請改用修改或重新上傳');
   error.status = 409;
+  error.code = 'OBSERVATION_NATURAL_KEY_CONFLICT';
   return error;
 }
 
@@ -57,11 +63,12 @@ export async function createObservation(input, user) {
     height: input.height,
     nodes: input.nodes,
     internodeStatistics: input.internodeStatistics || null,
-    gifUrl: input.gifUrl || null,
-    glbUrl: input.glbUrl || null,
-    annotatedGlbUrl: input.annotatedGlbUrl || null,
-    measurementUrl: input.measurementUrl || null,
-    source: input.source || 'manual',
+    gifUrl: null,
+    glbUrl: null,
+    annotatedGlbUrl: null,
+    measurementUrl: null,
+    nodesCsvUrl: null,
+    source: 'manual',
     note: input.note || '',
     uploadStatus: 'pending',
     retryCount: 0,
@@ -71,8 +78,6 @@ export async function createObservation(input, user) {
     createdAt: timestamp,
     updatedAt: timestamp
   };
-  if (input.modelingJobId) observation.modelingJobId = input.modelingJobId;
-
   try {
     await database.collection('observations').insertOne(observation);
   } catch (error) {
@@ -102,8 +107,9 @@ export async function getOrCreateObservationByModelingJobId(input, user) {
     glbUrl: input.glbUrl || null,
     annotatedGlbUrl: input.annotatedGlbUrl || null,
     measurementUrl: input.measurementUrl || null,
+    nodesCsvUrl: input.nodesCsvUrl || null,
     modelingJobId: input.modelingJobId,
-    source: input.source || 'robot_vision',
+    source: 'robot_vision',
     note: input.note || '',
     uploadStatus: 'pending',
     retryCount: 0,
@@ -131,13 +137,14 @@ export async function getOrCreateObservationByModelingJobId(input, user) {
   }
 }
 
-export async function createModelingJob({ plantId, observedAt, user }) {
+export async function createModelingJob({ plantId, observedAt, submissionKey, user }) {
   const database = await getDatabase();
   const timestamp = nowIso();
   const job = {
     _id: randomUUID(),
     plantId,
     observedAt,
+    submissionKey,
     status: 'queued',
     dataHubStatus: null,
     error: null,
@@ -146,8 +153,20 @@ export async function createModelingJob({ plantId, observedAt, user }) {
     createdAt: timestamp,
     updatedAt: timestamp
   };
-  await database.collection('modelingJobs').insertOne(job);
-  return cleanDoc(job);
+  try {
+    await database.collection('modelingJobs').insertOne(job);
+    return { job: cleanDoc(job), created: true };
+  } catch (error) {
+    if (error.code !== 11000) throw error;
+    const existing = await database.collection('modelingJobs').findOne({ createdBy: user.uid, submissionKey });
+    if (!existing) throw error;
+    if (existing.plantId !== plantId || existing.observedAt !== observedAt) {
+      const conflict = new Error('Submission key was already used with different job metadata');
+      conflict.status = 409;
+      throw conflict;
+    }
+    return { job: cleanDoc(existing), created: false };
+  }
 }
 
 export async function getModelingJob(id) {
@@ -320,13 +339,19 @@ export async function updateObservationUpload(id, patch) {
 export async function claimObservationUpload(id) {
   const database = await getDatabase();
   const claimId = randomUUID();
-  const staleBefore = new Date(Date.now() - Number(process.env.DATAHUB_CLAIM_TIMEOUT_MS || 10 * 60 * 1000)).toISOString();
+  const staleBefore = new Date(Date.now() - dataHubClaimTimeoutMs()).toISOString();
   const updated = await database.collection('observations').findOneAndUpdate(
     {
       _id: id,
       $or: [
         { uploadStatus: { $in: ['pending', 'failed'] } },
-        { uploadStatus: 'uploading', uploadClaimedAt: { $lt: staleBefore } }
+        {
+          uploadStatus: 'uploading',
+          $or: [
+            { uploadClaimedAt: { $lt: staleBefore } },
+            { uploadClaimedAt: { $exists: false } }
+          ]
+        }
       ]
     },
     {
@@ -382,8 +407,15 @@ export async function listObservations({ page = 1, limit = 10 } = {}) {
 export async function listUnsyncedObservations(limit = 500) {
   const safeLimit = Math.min(Math.max(Number(limit) || 500, 1), 500);
   const database = await getDatabase();
+  const staleBefore = new Date(Date.now() - dataHubClaimTimeoutMs()).toISOString();
   const observations = await database.collection('observations')
-    .find({ uploadStatus: { $in: ['pending', 'failed'] } })
+    .find({
+      $or: [
+        { uploadStatus: { $in: ['pending', 'failed'] } },
+        { uploadStatus: 'uploading', uploadClaimedAt: { $lt: staleBefore } },
+        { uploadStatus: 'uploading', uploadClaimedAt: { $exists: false } }
+      ]
+    })
     .sort({ observedAt: 1 })
     .limit(safeLimit)
     .toArray();

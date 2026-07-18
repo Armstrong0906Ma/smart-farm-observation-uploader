@@ -44,6 +44,9 @@ export function ModelingJobForm() {
   const [message, setMessage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const pollTimer = useRef(null);
+  const pollingJobId = useRef(null);
+  const submissionKey = useRef(null);
+  const succeededNotified = useRef(false);
 
   useEffect(() => {
     getIdToken().then(token => fetch('/api/plants', {
@@ -57,10 +60,12 @@ export function ModelingJobForm() {
   }, [getIdToken]);
 
   useEffect(() => () => {
+    pollingJobId.current = null;
     if (pollTimer.current) window.clearTimeout(pollTimer.current);
   }, []);
 
   async function pollJob(id) {
+    if (pollingJobId.current !== id) return;
     try {
       const token = await getIdToken();
       const response = await fetch(`/api/modeling-jobs/${id}`, {
@@ -70,26 +75,41 @@ export function ModelingJobForm() {
       const data = await readJsonResponse(response);
       if (!response.ok) throw new Error(data.error || '查詢任務失敗');
       setJob(data.job);
-      if (['queued', 'dispatching', 'processing'].includes(data.job.status)) {
-        pollTimer.current = window.setTimeout(() => pollJob(id), 5000);
-      } else if (data.job.status === 'succeeded') {
+      const modelingActive = ['queued', 'dispatching', 'processing'].includes(data.job.status);
+      const dataHubActive = data.job.status === 'succeeded'
+        && !['uploaded', 'failed'].includes(data.job.dataHubStatus);
+      if (data.job.status === 'succeeded' && !succeededNotified.current) {
+        succeededNotified.current = true;
         window.dispatchEvent(new Event('observations:changed'));
+      }
+      if (modelingActive || dataHubActive) {
+        pollTimer.current = window.setTimeout(() => pollJob(id), 5000);
+      } else {
+        pollingJobId.current = null;
       }
     } catch (error) {
       setMessage({ type: 'error', text: error.message });
+      if (pollingJobId.current === id) {
+        pollTimer.current = window.setTimeout(() => pollJob(id), 5000);
+      }
     }
   }
 
   async function submit(event) {
     event.preventDefault();
     setSubmitting(true);
+    if (pollTimer.current) window.clearTimeout(pollTimer.current);
+    pollingJobId.current = null;
     setMessage(null);
     setJob(null);
+    succeededNotified.current = false;
     try {
       const token = await getIdToken();
       const form = new FormData();
       form.set('plantId', plantId);
       form.set('observedAt', new Date(observedAt).toISOString());
+      submissionKey.current ||= crypto.randomUUID();
+      form.set('submissionKey', submissionKey.current);
       form.set('front', front);
       form.set('right', right);
       const response = await fetch('/api/modeling-jobs', {
@@ -100,7 +120,9 @@ export function ModelingJobForm() {
       const data = await readJsonResponse(response);
       if (!response.ok) throw new Error(data.error || '建立任務失敗');
       setJob(data.job);
+      submissionKey.current = null;
       setMessage({ type: 'ok', text: '照片已送出，可以留在此頁查看進度。' });
+      pollingJobId.current = data.job.id;
       pollTimer.current = window.setTimeout(() => pollJob(data.job.id), 3000);
     } catch (error) {
       setMessage({ type: 'error', text: error.message });

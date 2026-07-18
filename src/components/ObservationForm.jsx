@@ -64,8 +64,7 @@ export function ObservationForm() {
           observedAt,
           height: Number(form.height),
           nodes: Number(form.nodes),
-          note: form.note,
-          source: 'manual'
+          note: form.note
         })
       });
       const data = await response.json();

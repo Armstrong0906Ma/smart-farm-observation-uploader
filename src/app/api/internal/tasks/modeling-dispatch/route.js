@@ -19,17 +19,11 @@ export async function POST(request) {
       error.status = 404;
       throw error;
     }
-    if (job.status === 'dispatching') {
-      job = await transitionModelingJob(jobId, ['dispatching'], {
-        status: 'failed',
-        error: 'Modeling dispatch was interrupted and was not retried to avoid duplicate quota usage'
-      }) || await getModelingJob(jobId);
-      await deleteModelingSourceImages(job).catch(() => {});
-      return json({ job });
+    if (!['queued', 'dispatching'].includes(job.status)) return json({ job });
+    if (job.status === 'queued') {
+      job = await transitionModelingJob(jobId, ['queued'], { status: 'dispatching', error: null });
+      if (!job) return json({ job: await getModelingJob(jobId) });
     }
-    if (job.status !== 'queued') return json({ job });
-    job = await transitionModelingJob(jobId, ['queued'], { status: 'dispatching', error: null });
-    if (!job) return json({ job: await getModelingJob(jobId) });
 
     try {
       const images = await loadModelingSourceImages(job);
@@ -38,10 +32,17 @@ export async function POST(request) {
       await deleteModelingSourceImages(job).catch(() => {});
       return json({ job });
     } catch (error) {
-      job = await transitionModelingJob(jobId, ['dispatching'], { status: 'failed', error: error.message }) || await getModelingJob(jobId);
-      await deleteModelingSourceImages(job).catch(() => {});
-      // Do not retry a dispatch automatically: the worker may already have consumed paid quota.
-      return json({ job });
+      if (error.terminal) {
+        job = await transitionModelingJob(jobId, ['dispatching'], {
+          status: 'failed',
+          error: error.message
+        }) || await getModelingJob(jobId);
+        await deleteModelingSourceImages(job).catch(() => {});
+        return json({ job });
+      }
+      // The worker enqueues by job ID before returning 202, so response loss is safe to retry.
+      // Keep source images and dispatching state until Cloud Tasks redelivers this task.
+      throw error;
     }
   } catch (error) {
     if (error.name === 'ZodError') {
