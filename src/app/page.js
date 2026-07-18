@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from '@/components/AuthProvider';
 import { ImportObservations } from '@/components/ImportObservations';
 import { ObservationForm } from '@/components/ObservationForm';
 import { RecentObservations } from '@/components/RecentObservations';
+import { ModelingJobForm } from '@/components/ModelingJobForm';
 
 function HomeContent() {
   const { user, loading, authError, signIn, signOut } = useAuth();
@@ -35,6 +36,7 @@ function HomeContent() {
         </div>
         <button className="ghostButton" onClick={signOut}>登出</button>
       </header>
+      <ModelingJobForm />
       <div className="grid">
         <div className="stack">
           <ObservationForm />

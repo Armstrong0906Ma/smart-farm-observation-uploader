@@ -224,6 +224,12 @@ export function RecentObservations() {
               <>
                 <div className="recordMeta">高度 {item.height}，結點 {item.nodes}</div>
                 {item.note && <div className="recordMeta">備註：{item.note}</div>}
+                {(item.gifUrl || item.glbUrl) && (
+                  <div className="actionRow">
+                    {item.gifUrl && <a className="smallButton" href={item.gifUrl} target="_blank" rel="noreferrer">查看 GIF</a>}
+                    {item.glbUrl && <a className="smallButton" href={item.glbUrl} target="_blank" rel="noreferrer">下載 GLB</a>}
+                  </div>
+                )}
               </>
             )}
             {item.lastError && <div className="notice error">{item.lastError}</div>}

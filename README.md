@@ -13,13 +13,13 @@
 Web UI / External Automation
   -> Next.js API
   -> Firebase Auth
-  -> Firestore
+  -> MongoDB
   -> Manual / Batch Sync
   -> DataHub Node.js SDK
   -> WISE-PaaS/DataHub
 ```
 
-手動新增的觀測資料會先存到 Firestore，預設 `uploadStatus = pending`。使用者按下同步按鈕後，系統才會送到 DataHub。
+手動新增的觀測資料會先存到 MongoDB，預設 `uploadStatus = pending`。使用者按下同步按鈕後，系統才會送到 DataHub。
 
 批次匯入 Excel / CSV 時，前端會先解析檔案並檢查格式；確認同步後，後端會建立匯入批次並在背景逐筆上傳到 DataHub。
 
@@ -29,17 +29,18 @@ Web UI / External Automation
 - 手動新增植株觀測資料。
 - Excel / CSV 批次匯入植株高度與節點數。
 - 匯入批次進度查詢。
-- Firestore 儲存觀測資料、匯入批次與上傳紀錄。
+- MongoDB 儲存觀測資料、節間統計、匯入批次與上傳紀錄。
 - 支援 mock 上傳模式，方便本機開發與 UI 測試。
 - 支援 DataHub Node.js SDK 上傳模式。
 - 提供 API 給自動化檢測流程串接。
+- 上傳正面與右側照片，追蹤 Hunyuan 3D 建模、株高結點分析與 DataHub 自動同步。
 
 ## 技術架構
 
 - Next.js 15 App Router
 - React 19
 - Firebase Auth
-- Google Cloud Firestore
+- MongoDB
 - Advantech WISE-PaaS/DataHub Edge Node.js SDK
 - `xlsx` 檔案解析
 - `zod` API payload 驗證
@@ -51,7 +52,7 @@ src/app                     Next.js 頁面與 API routes
 src/components              前端 UI 元件
 src/lib/importParser.js     Excel / CSV 解析邏輯
 src/lib/validation.js       API 輸入資料驗證 schema
-src/lib/repositories.js     Firestore 資料存取
+src/lib/repositories.js     MongoDB 資料存取
 src/lib/uploaders           DataHub / mock 上傳器
 scripts                     DataHub timestamp PoC
 docs                        開發筆記與 PoC 文件
@@ -96,9 +97,8 @@ npm run start
 
 | 變數 | 必填 | 說明 |
 | --- | --- | --- |
-| `GOOGLE_CLOUD_PROJECT` | 建議 | Google Cloud / Firebase 專案 ID。若未設定，會使用 `NEXT_PUBLIC_FIREBASE_PROJECT_ID`。 |
-| `FIRESTORE_DATABASE_ID` | 否 | Firestore database ID，預設 `(default)`。 |
-| `REPOSITORY_MODE` | 否 | 目前範例值為 `memory`，實際程式主要使用 Firestore repository。 |
+| `MONGODB_URI` | 是 | MongoDB 連線字串。應使用平台提供或 MongoDB Atlas 的 TLS 連線字串。 |
+| `MONGODB_DATABASE` | 否 | MongoDB database 名稱，預設 `smart_farm`。 |
 | `NEXT_PUBLIC_FIREBASE_API_KEY` | 是 | Firebase Web App API key。 |
 | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | 是 | Firebase Auth domain。 |
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | 是 | Firebase project ID。 |
@@ -112,12 +112,15 @@ npm run start
 | `DATAHUB_USE_SECURE` | 否 | 保留設定，目前主要由 SDK 連線設定處理。 |
 | `DATAHUB_CONNECT_TIMEOUT_MS` | 否 | 等待 SDK connected 事件逾時毫秒數，預設 `30000`。 |
 | `DATAHUB_PUBLISH_WAIT_MS` | 否 | 送出資料後等待 SDK publish 的時間，預設 `1500`。 |
-| `TASKS_PROJECT_ID` | 否 | Cloud Tasks 相關設定，目前主要作為未來非同步 dispatch 保留。 |
-| `TASKS_LOCATION` | 否 | Cloud Tasks location。 |
-| `TASKS_QUEUE` | 否 | Cloud Tasks queue。 |
-| `TASK_HANDLER_URL` | 否 | Cloud Tasks handler URL。 |
-| `TASK_SERVICE_ACCOUNT_EMAIL` | 否 | Cloud Tasks service account email。 |
-| `INTERNAL_TASK_TOKEN` | 否 | 內部 task token，預設範例為 `change-me`。 |
+| `TASKS_PROJECT_ID` | 非同步模式必填 | Cloud Tasks GCP project。Tasks 設定需整組提供。 |
+| `TASKS_LOCATION` | 非同步模式必填 | Cloud Tasks location。 |
+| `TASKS_QUEUE` | 非同步模式必填 | 建模與 DataHub task 使用的 queue。 |
+| `TASK_HANDLER_URL` | 非同步模式必填 | 此 Next.js 服務的公開 base URL。 |
+| `TASK_SERVICE_ACCOUNT_EMAIL` | 否 | 設定後 Cloud Tasks 會附 Cloud Run OIDC token。 |
+| `INTERNAL_TASK_TOKEN` | callback/非同步模式必填 | Worker callback 與內部 task route 共用的隨機密鑰。 |
+| `DATAHUB_CLAIM_TIMEOUT_MS` | 否 | DataHub 上傳 claim 失效時間，預設 `600000`；失效後 task 可重新 claim。 |
+| `HUNYUAN_SERVICE_URL` | 自動建模必填 | 本機或 GCE Hunyuan worker URL。 |
+| `HUNYUAN_SERVICE_TOKEN` | 自動建模建議 | Cloud Run 呼叫 worker 的共用 token。 |
 
 ### 本機 UI 測試建議設定
 
@@ -284,7 +287,7 @@ Excel 解析規則：
 2. 在 `新增觀測資料` 區塊選擇植株編號。
 3. 輸入觀測日期時間、高度、節點數與備註。
 4. 按下 `儲存到資料庫`。
-5. 資料會先以 `pending` 狀態存入 Firestore。
+5. 資料會先以 `pending` 狀態存入 MongoDB。
 6. 確認資料後，按下同步按鈕將待同步資料送到 DataHub。
 
 ### Excel / CSV 批次匯入
@@ -307,13 +310,14 @@ DataHub 上傳器會將每筆觀測資料轉成 EdgeData。
 new Date(observedAt).getTime()
 ```
 
-每筆觀測資料會送出三個 tag：
+每筆觀測資料會送出三個必要 tag；自動建模有 GIF 時另送 `gif_url` 文字 tag：
 
 | deviceId | tagName | value |
 | --- | --- | --- |
 | `plantId` | `height` | 植株高度 |
 | `plantId` | `nodes` | 節點數 |
 | `plantId` | `plant` | 植株編號 |
+| `plantId` | `gif_url` | GIF HTTPS URL（選填） |
 
 範例：
 
@@ -894,7 +898,7 @@ Response `200`：
 POST /api/observations
 ```
 
-適合每次拍攝或量測完成就立刻寫入一筆資料。資料會先進 Firestore，狀態為 `pending`，再由使用者或排程呼叫同步 API。
+適合每次拍攝或量測完成就立刻寫入一筆資料。資料會先進 MongoDB，狀態為 `pending`，再由使用者或排程呼叫同步 API。
 
 建議流程：
 
@@ -937,10 +941,10 @@ API 的 `observedAt` 必須使用 ISO datetime，例如：
 
 ### 重複資料處理
 
-觀測資料 ID 由以下規則產生：
+觀測資料由 MongoDB 產生 UUID，並以以下欄位建立唯一索引：
 
 ```text
-{plantId}_{new Date(observedAt).getTime()}
+{ plantId: 1, observedAt: 1 }
 ```
 
 因此同一植株同一時間只允許一筆資料。自動化系統若重送相同資料，會收到 `409`。建議串接端自行決定：
@@ -953,12 +957,12 @@ API 的 `observedAt` 必須使用 ISO datetime，例如：
 
 | uploadStatus | 說明 |
 | --- | --- |
-| `pending` | 已存入 Firestore，尚未送 DataHub。 |
+| `pending` | 已存入 MongoDB，尚未送 DataHub。 |
 | `uploading` | 正在上傳 DataHub。 |
 | `uploaded` | 已成功上傳 DataHub。 |
 | `failed` | 上傳失敗，可修正設定後重新同步。 |
 
-## Firestore 資料集合
+## MongoDB Collections
 
 | Collection | 說明 |
 | --- | --- |
@@ -966,7 +970,9 @@ API 的 `observedAt` 必須使用 ISO datetime，例如：
 | `observations` | 手動或 API 建立的觀測資料。 |
 | `uploadAttempts` | 單筆觀測資料上傳嘗試紀錄。 |
 | `importBatches` | 批次匯入主檔。 |
-| `importBatches/{batchId}/items` | 批次匯入逐筆結果。 |
+| `importBatchItems` | 批次匯入逐筆結果，以 `batchId` 關聯主檔。 |
+| `modelingJobs` | 兩張照片建模任務；`status` 與 `dataHubStatus` 分別追蹤建模及發布。 |
+| `modelingSourceImages.files/chunks` | Cloud Tasks 模式暫存的來源照片，派送後刪除。 |
 
 ## 開發指令
 
@@ -984,15 +990,16 @@ npm run poc:datahub-timestamp
 
 - 不要把 `.env.local` 提交到 GitHub。
 - 不要把 Firebase service account JSON 提交到 GitHub。
+- 不要把 MongoDB connection string 提交到 GitHub。
 - 不要把 DataHub credential key 寫死在程式碼或文件範例中。
 - `AUTH_REQUIRED=false` 僅可用於本機或受控測試環境。
-- 對外部署時必須使用 HTTPS，並保護 Firebase / DataHub credential。
+- 對外部署時必須使用 HTTPS，並保護 Firebase、MongoDB、DataHub credential。
 
 ## 常見問題
 
 ### 為什麼新增資料後沒有立刻出現在 DataHub？
 
-手動新增資料只會先存到 Firestore，狀態為 `pending`。需要按下同步按鈕或呼叫 `POST /api/observations/sync` 才會送到 DataHub。
+手動新增資料只會先存到 MongoDB，狀態為 `pending`。需要按下同步按鈕或呼叫 `POST /api/observations/sync` 才會送到 DataHub。
 
 ### 為什麼 Excel 匯入需要 Day 0？
 

@@ -1,32 +1,51 @@
-import { addUploadAttempt, updateObservationUpload } from '@/lib/repositories';
+import {
+  addUploadAttempt,
+  claimObservationUpload,
+  finishObservationUpload,
+  getObservation,
+  updateModelingJob
+} from '@/lib/repositories';
 import { uploadObservation } from '@/lib/uploaders';
 
-export async function uploadObservationAndRecord(observation) {
-  await updateObservationUpload(observation.id, { uploadStatus: 'uploading', lastError: null });
+async function updateModelingDataHubStatus(observation) {
+  if (observation?.modelingJobId) {
+    await updateModelingJob(observation.modelingJobId, { dataHubStatus: observation.uploadStatus });
+  }
+}
+
+export async function uploadObservationAndRecord(observation, { throwOnFailure = false } = {}) {
+  const claimed = await claimObservationUpload(observation.id);
+  if (!claimed) return getObservation(observation.id);
+  const current = claimed.observation;
+  await updateModelingDataHubStatus(current);
   try {
-    const result = await uploadObservation(observation);
+    const result = await uploadObservation(current);
     await addUploadAttempt({
-      observationId: observation.id,
+      observationId: current.id,
       adapter: result.adapter,
       status: 'uploaded',
       errorMessage: null
     });
-    return updateObservationUpload(observation.id, {
+    const updated = await finishObservationUpload(current.id, claimed.claimId, {
       uploadStatus: 'uploaded',
       uploadedAt: new Date().toISOString(),
       lastError: null
     });
+    await updateModelingDataHubStatus(updated);
+    return updated;
   } catch (error) {
     await addUploadAttempt({
-      observationId: observation.id,
+      observationId: current.id,
       adapter: process.env.DATAHUB_UPLOADER || 'mock',
       status: 'failed',
       errorMessage: error.message
     });
-    return updateObservationUpload(observation.id, {
+    const updated = await finishObservationUpload(current.id, claimed.claimId, {
       uploadStatus: 'failed',
-      retryCount: (observation.retryCount || 0) + 1,
       lastError: error.message
     });
+    await updateModelingDataHubStatus(updated);
+    if (throwOnFailure) throw error;
+    return updated;
   }
 }
