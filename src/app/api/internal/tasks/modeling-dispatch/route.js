@@ -1,4 +1,5 @@
 import { errorResponse, json } from '@/lib/http';
+import { ensureHunyuanWorkerReady } from '@/lib/gceWorker';
 import { requireInternalToken } from '@/lib/internalAuth';
 import { dispatchModelingJob } from '@/lib/modelingDispatch';
 import {
@@ -21,21 +22,37 @@ export async function POST(request) {
     }
     if (!['queued', 'dispatching'].includes(job.status)) return json({ job });
     if (job.status === 'queued') {
-      job = await transitionModelingJob(jobId, ['queued'], { status: 'dispatching', error: null });
+      job = await transitionModelingJob(jobId, ['queued'], {
+        status: 'dispatching',
+        error: null,
+        progress: {
+          phase: 'dispatching',
+          overallPercent: 5,
+          remotePercent: null,
+          remoteStatus: null,
+          updatedAt: new Date().toISOString()
+        }
+      });
       if (!job) return json({ job: await getModelingJob(jobId) });
     }
 
     try {
+      await ensureHunyuanWorkerReady();
       const images = await loadModelingSourceImages(job);
       await dispatchModelingJob(job, images);
-      job = await transitionModelingJob(jobId, ['dispatching'], { status: 'processing', error: null }) || await getModelingJob(jobId);
+      job = await transitionModelingJob(jobId, ['dispatching'], {
+        status: 'processing',
+        error: null
+      }) || await getModelingJob(jobId);
       await deleteModelingSourceImages(job).catch(() => {});
       return json({ job });
     } catch (error) {
       if (error.terminal) {
         job = await transitionModelingJob(jobId, ['dispatching'], {
           status: 'failed',
-          error: error.message
+          error: error.message,
+          'progress.phase': 'failed',
+          'progress.updatedAt': new Date().toISOString()
         }) || await getModelingJob(jobId);
         await deleteModelingSourceImages(job).catch(() => {});
         return json({ job });

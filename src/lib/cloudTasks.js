@@ -1,4 +1,5 @@
 import { CloudTasksClient } from '@google-cloud/tasks';
+import { randomUUID } from 'crypto';
 
 let client;
 
@@ -8,15 +9,18 @@ function config() {
     location: process.env.TASKS_LOCATION,
     modelingQueue: process.env.TASKS_MODELING_QUEUE || process.env.TASKS_QUEUE,
     dataHubQueue: process.env.TASKS_DATAHUB_QUEUE || process.env.TASKS_QUEUE,
+    dashboardQueue: process.env.TASKS_DASHBOARD_QUEUE
+      || process.env.TASKS_DATAHUB_QUEUE
+      || process.env.TASKS_QUEUE,
     handlerUrl: process.env.TASK_HANDLER_URL,
     token: process.env.INTERNAL_TASK_TOKEN,
     serviceAccountEmail: process.env.TASK_SERVICE_ACCOUNT_EMAIL || null
   };
-  const required = ['project', 'location', 'modelingQueue', 'dataHubQueue', 'handlerUrl', 'token'];
+  const required = ['project', 'location', 'modelingQueue', 'dataHubQueue', 'dashboardQueue', 'handlerUrl', 'token'];
   const configured = required.filter(key => values[key]).length;
   if (configured === 0) return null;
   if (configured !== required.length) {
-    throw new Error('Cloud Tasks requires TASKS_PROJECT_ID, TASKS_LOCATION, TASKS_QUEUE, TASK_HANDLER_URL, and INTERNAL_TASK_TOKEN');
+    throw new Error('Cloud Tasks requires project, location, queue, handler URL, and internal token settings');
   }
   return values;
 }
@@ -29,7 +33,11 @@ async function enqueue(kind, id, path, payload) {
   const settings = config();
   if (!settings) return false;
   client ||= new CloudTasksClient();
-  const queue = kind === 'modeling' ? settings.modelingQueue : settings.dataHubQueue;
+  const queue = kind === 'modeling'
+    ? settings.modelingQueue
+    : kind === 'dashboard'
+      ? settings.dashboardQueue
+      : settings.dataHubQueue;
   const parent = client.queuePath(settings.project, settings.location, queue);
   const safeId = id.replace(/[^a-zA-Z0-9_-]/g, '-');
   const headers = { 'Content-Type': 'application/json' };
@@ -47,8 +55,9 @@ async function enqueue(kind, id, path, payload) {
       audience: settings.handlerUrl.replace(/\/$/, '')
     };
   }
+  const taskId = kind === 'dashboard' ? `${kind}-${safeId}-${randomUUID()}` : `${kind}-${safeId}`;
   const task = {
-    name: client.taskPath(settings.project, settings.location, queue, `${kind}-${safeId}`),
+    name: client.taskPath(settings.project, settings.location, queue, taskId),
     httpRequest
   };
   try {
@@ -65,4 +74,8 @@ export function enqueueModelingDispatch(jobId) {
 
 export function enqueueDataHubPublish(observationId) {
   return enqueue('datahub', observationId, '/api/internal/tasks/datahub-publish', { observationId });
+}
+
+export function enqueueDashboardPublish(observationId) {
+  return enqueue('dashboard', observationId, '/api/internal/tasks/dashboard-publish', { observationId });
 }

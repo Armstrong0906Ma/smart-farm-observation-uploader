@@ -206,6 +206,92 @@ h2 { font-size: 22px; margin-bottom: 16px; }
 .recordTitle { font-weight: 800; }
 .recordMeta { color: var(--muted); font-size: 13px; }
 
+.recordDetailControl { display: flex; }
+
+.recordDetails {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  background: white;
+}
+
+.recordDetailSection { display: grid; gap: 10px; }
+
+.recordDetailSection + .recordDetailSection {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.recordDetailSection h3,
+.recordDetailSection p,
+.statisticGrid,
+.internodeGroupGrid {
+  margin: 0;
+}
+
+.recordDetailSection h3 { font-size: 15px; }
+.recordDetailSection p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+.statisticGrid,
+.internodeGroupGrid {
+  display: grid;
+  gap: 8px;
+}
+
+.statisticGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.internodeGroupGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.statisticGrid > div,
+.internodeGroupGrid > div {
+  min-width: 0;
+  border-radius: 10px;
+  padding: 10px;
+  background: #edf8ed;
+}
+
+.statisticGrid dt,
+.internodeGroupGrid dt {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.statisticGrid dd,
+.internodeGroupGrid dd {
+  margin: 4px 0 0;
+  color: var(--green-dark);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.sourceImageGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 220px));
+  gap: 10px;
+}
+
+.sourceImageLink {
+  display: grid;
+  gap: 6px;
+  color: var(--green-dark);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.sourceImageLink img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  object-fit: cover;
+  background: #e8eee7;
+}
+
+.sourceImageLink:hover img { border-color: var(--green); }
+
 .importCard { display: grid; gap: 10px; }
 
 .importCard h2 { margin-bottom: 0; }
@@ -269,6 +355,22 @@ h2 { font-size: 22px; margin-bottom: 16px; }
   background: #fbfdfb;
 }
 
+.runningModelingJobs,
+.modelingProgressMeta {
+  display: grid;
+  gap: 8px;
+}
+
+.runningModelingJobs {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.retryMeta {
+  color: #9a5b00;
+  font-weight: 800;
+}
+
 .progressTrack {
   height: 9px;
   overflow: hidden;
@@ -281,6 +383,15 @@ h2 { font-size: 22px; margin-bottom: 16px; }
   border-radius: inherit;
   background: linear-gradient(90deg, var(--green), #5fae72);
   transition: width 0.25s ease;
+}
+
+.modelingProgress { margin-top: 12px; }
+
+.progressHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .actionRow {
@@ -321,5 +432,8 @@ h2 { font-size: 22px; margin-bottom: 16px; }
   .grid { grid-template-columns: 1fr; }
   .modelingGrid { grid-template-columns: 1fr; }
   .editGrid { grid-template-columns: 1fr; }
+  .sourceImageGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .statisticGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .internodeGroupGrid { grid-template-columns: 1fr; }
   .heroCard, .card { border-radius: 22px; padding: 18px; }
 }

@@ -34,6 +34,8 @@ Web UI / External Automation
 - 支援 DataHub Node.js SDK 上傳模式。
 - 提供 API 給自動化檢測流程串接。
 - 上傳正面與右側照片，追蹤 Hunyuan 3D 建模、株高結點分析與 DataHub 自動同步。
+- 每分鐘監測機械手臂照片來源，將 `pos2` 當正面、`pos1` 當右側並自動排入相同建模流程。
+- 所有登入使用者都能看到進行中的手動與機械手臂建模任務，重新整理後仍可恢復進度。
 
 ## 技術架構
 
@@ -114,13 +116,27 @@ npm run start
 | `DATAHUB_PUBLISH_WAIT_MS` | 否 | 送出資料後等待 SDK publish 的時間，預設 `1500`。 |
 | `TASKS_PROJECT_ID` | 非同步模式必填 | Cloud Tasks GCP project。Tasks 設定需整組提供。 |
 | `TASKS_LOCATION` | 非同步模式必填 | Cloud Tasks location。 |
-| `TASKS_QUEUE` | 非同步模式必填 | 建模與 DataHub task 使用的 queue。 |
+| `TASKS_QUEUE` | 非同步模式必填 | 未設定個別 queue 時的相容性 fallback。 |
+| `TASKS_MODELING_QUEUE` | 否 | 建模派送專用 queue。 |
+| `TASKS_DATAHUB_QUEUE` | 否 | DataHub 發布專用 queue。 |
+| `TASKS_DASHBOARD_QUEUE` | 否 | Dashboard 發布專用 queue，建議限制單一並行。 |
 | `TASK_HANDLER_URL` | 非同步模式必填 | 此 Next.js 服務的公開 base URL。 |
 | `TASK_SERVICE_ACCOUNT_EMAIL` | 否 | 設定後 Cloud Tasks 會附 Cloud Run OIDC token。 |
 | `INTERNAL_TASK_TOKEN` | callback/非同步模式必填 | Worker callback 與內部 task route 共用的隨機密鑰。 |
+| `AUTO_CAPTURE_ENABLED` | 否 | 設為 `true` 才允許 Scheduler 監測照片來源；首次完整 pair 只建立 baseline。 |
+| `AUTO_CAPTURE_SOURCE_URL` | 自動拍照模式必填 | 機械手臂網站的 `images.json` 完整 URL。 |
+| `AUTO_CAPTURE_PLANT_ID` | 否 | 自動照片所屬植株，預設 `A-1-1`。 |
+| `AUTO_CAPTURE_TIMEZONE` | 否 | 檔名拍攝時間的時區，目前固定支援 `Asia/Taipei`。 |
 | `DATAHUB_CLAIM_TIMEOUT_MS` | 否 | DataHub 上傳 claim 失效時間，預設 `600000`；失效後 task 可重新 claim。 |
 | `HUNYUAN_SERVICE_URL` | 自動建模必填 | 本機或 GCE Hunyuan worker URL。 |
 | `HUNYUAN_SERVICE_TOKEN` | 自動建模建議 | Cloud Run 呼叫 worker 的共用 token。 |
+| `DASHBOARD_PUBLISH_MODE` | 否 | `disabled`、`dry-run` 或 `live`，預設停用。 |
+| `DASHBOARD_BASE_URL` | Dashboard 模式必填 | 研華 Dashboard HTTPS origin。 |
+| `DASHBOARD_UID` | Dashboard 模式必填 | 固定 Dashboard UID。 |
+| `DASHBOARD_LOGIN_EMAIL` | Dashboard 模式必填 | `/login` 使用的 email 欄位。 |
+| `DASHBOARD_LOGIN_USER` | Dashboard 模式必填 | `/login` 使用的 user 欄位；可與 email 相同。 |
+| `DASHBOARD_LOGIN_PASSWORD` | Dashboard 模式必填 | Dashboard 密碼，只能存於 Secret Manager 或 `.env.local`。 |
+| `DASHBOARD_ORG_ID` | 否 | Grafana organization ID，預設 `1`。 |
 
 ### 本機 UI 測試建議設定
 

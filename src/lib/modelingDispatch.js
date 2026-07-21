@@ -13,6 +13,10 @@ export class ModelingDispatchError extends Error {
   }
 }
 
+export function calibrationProfileForJob(job) {
+  return job?.submissionSource === 'robot_camera' ? 'robot_camera' : 'manual';
+}
+
 export async function dispatchModelingJob(job, images) {
   const serviceUrl = process.env.HUNYUAN_SERVICE_URL;
   if (!serviceUrl) throw new ModelingDispatchError('Missing HUNYUAN_SERVICE_URL');
@@ -20,6 +24,7 @@ export async function dispatchModelingJob(job, images) {
   workerForm.set('job_id', job.id);
   workerForm.set('plant_id', job.plantId);
   workerForm.set('observed_at', job.observedAt);
+  workerForm.set('calibration_profile', calibrationProfileForJob(job));
   workerForm.set('front', new Blob([images.front.buffer], { type: images.front.type }), images.front.name);
   workerForm.set('right', new Blob([images.right.buffer], { type: images.right.type }), images.right.name);
   const response = await fetch(`${serviceUrl.replace(/\/$/, '')}/api/capture-complete/upload`, {

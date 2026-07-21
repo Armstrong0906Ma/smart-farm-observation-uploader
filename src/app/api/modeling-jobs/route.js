@@ -1,15 +1,7 @@
 import { requireUser } from '@/lib/authServer';
-import { cloudTasksEnabled, enqueueModelingDispatch } from '@/lib/cloudTasks';
 import { errorResponse, json } from '@/lib/http';
-import { dispatchModelingJob } from '@/lib/modelingDispatch';
-import {
-  createModelingJob,
-  deleteModelingSourceImages,
-  getModelingJob,
-  getPlant,
-  saveModelingSourceImages,
-  transitionModelingJob
-} from '@/lib/repositories';
+import { submitModelingJob } from '@/lib/modelingSubmission';
+import { getPlant, listActiveModelingJobs } from '@/lib/repositories';
 
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
 
@@ -36,11 +28,8 @@ async function imageData(file) {
 }
 
 export async function POST(request) {
-  let job;
-  let created = false;
   try {
     const user = await requireUser(request);
-    const useTasks = cloudTasksEnabled();
     const form = await request.formData();
     const plantId = String(form.get('plantId') || '').trim();
     const observedAt = String(form.get('observedAt') || '');
@@ -66,37 +55,24 @@ export async function POST(request) {
       throw error;
     }
 
-    const createdJob = await createModelingJob({
+    const result = await submitModelingJob({
       plantId,
       observedAt: new Date(observedAt).toISOString(),
       submissionKey,
-      user
+      user,
+      images: { front: await imageData(front), right: await imageData(right) }
     });
-    job = createdJob.job;
-    created = createdJob.created;
-    if (!created) return json({ job, replayed: true }, 200);
-    const images = { front: await imageData(front), right: await imageData(right) };
-    if (useTasks) {
-      await saveModelingSourceImages(job.id, images);
-      await enqueueModelingDispatch(job.id);
-      return json({ job }, 202);
-    }
-
-    await dispatchModelingJob(job, images);
-    job = await transitionModelingJob(job.id, ['queued', 'dispatching', 'processing'], {
-      status: 'processing',
-      error: null
-    }) || job;
-    return json({ job }, 202);
+    return json({ job: result.job, replayed: result.replayed }, result.replayed ? 200 : 202);
   } catch (error) {
-    if (job && created) {
-      await transitionModelingJob(job.id, ['queued', 'dispatching', 'processing'], {
-        status: 'failed',
-        error: error.message
-      }).catch(() => {});
-      const storedJob = await getModelingJob(job.id).catch(() => null);
-      if (storedJob) await deleteModelingSourceImages(storedJob).catch(() => {});
-    }
+    return errorResponse(error);
+  }
+}
+
+export async function GET(request) {
+  try {
+    await requireUser(request);
+    return json({ jobs: await listActiveModelingJobs() });
+  } catch (error) {
     return errorResponse(error);
   }
 }

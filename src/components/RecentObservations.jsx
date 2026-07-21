@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/components/AuthProvider';
 
 function statusText(status) {
@@ -14,6 +15,14 @@ function statusText(status) {
 
 function canEdit(item) {
   return item.uploadStatus === 'pending' || item.uploadStatus === 'failed';
+}
+
+function formatHeight(value) {
+  return Number(value).toFixed(2);
+}
+
+function formatStatistic(value) {
+  return Number.isFinite(value) ? `${value.toFixed(2)} cm` : '無資料';
 }
 
 function toLocalInputValue(value) {
@@ -33,6 +42,7 @@ export function RecentObservations() {
   const [syncing, setSyncing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState(null);
+  const [expandedIds, setExpandedIds] = useState(() => new Set());
 
   async function load(options = {}) {
     setLoading(true);
@@ -92,6 +102,18 @@ export function RecentObservations() {
 
   function updateEditField(name, value) {
     setEditForm(current => ({ ...current, [name]: value }));
+  }
+
+  function toggleDetails(id) {
+    setExpandedIds(current => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   }
 
   async function saveEdit(id) {
@@ -222,12 +244,89 @@ export function RecentObservations() {
               </div>
             ) : (
               <>
-                <div className="recordMeta">高度 {item.height}，結點 {item.nodes}</div>
-                {item.note && <div className="recordMeta">備註：{item.note}</div>}
-                {(item.gifUrl || item.glbUrl) && (
+                <div className="recordMeta">高度 {formatHeight(item.height)}，結點 {item.nodes}</div>
+                {(item.note || item.internodeStatistics) && (
+                  <div className="recordDetailControl">
+                    <button
+                      className="smallButton"
+                      type="button"
+                      aria-expanded={expandedIds.has(item.id)}
+                      aria-controls={`observation-details-${item.id}`}
+                      onClick={() => toggleDetails(item.id)}
+                    >
+                      {expandedIds.has(item.id) ? '收合詳情' : '查看詳情'}
+                    </button>
+                  </div>
+                )}
+                {expandedIds.has(item.id) && (item.note || item.internodeStatistics) && (
+                  <div className="recordDetails" id={`observation-details-${item.id}`}>
+                    {item.note && (
+                      <div className="recordDetailSection">
+                        <h3>備註</h3>
+                        <p>{item.note}</p>
+                      </div>
+                    )}
+                    {item.internodeStatistics && (
+                      <div className="recordDetailSection">
+                        <h3>節間長統計</h3>
+                        <dl className="statisticGrid">
+                          <div>
+                            <dt>平均</dt>
+                            <dd>{formatStatistic(item.internodeStatistics.overall?.mean)}</dd>
+                          </div>
+                          <div>
+                            <dt>最大</dt>
+                            <dd>{formatStatistic(item.internodeStatistics.overall?.maximum)}</dd>
+                          </div>
+                          <div>
+                            <dt>最小</dt>
+                            <dd>{formatStatistic(item.internodeStatistics.overall?.minimum)}</dd>
+                          </div>
+                          <div>
+                            <dt>標準差</dt>
+                            <dd>{formatStatistic(item.internodeStatistics.overall?.standard_deviation)}</dd>
+                          </div>
+                        </dl>
+                        <dl className="internodeGroupGrid">
+                          <div>
+                            <dt>第 1–9 節間平均</dt>
+                            <dd>{formatStatistic(item.internodeStatistics.internodes_1_to_9?.mean)}</dd>
+                          </div>
+                          <div>
+                            <dt>第 10–15 節間平均</dt>
+                            <dd>{formatStatistic(item.internodeStatistics.internodes_10_to_15?.mean)}</dd>
+                          </div>
+                          <div>
+                            <dt>第 16 節以上平均</dt>
+                            <dd>{formatStatistic(item.internodeStatistics.internodes_16_and_above?.mean)}</dd>
+                          </div>
+                        </dl>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {(item.frontImageUrl || item.rightImageUrl) && (
+                  <div className="sourceImageGrid">
+                    {item.frontImageUrl && (
+                      <a className="sourceImageLink" href={item.frontImageUrl} target="_blank" rel="noreferrer">
+                        <Image src={item.frontImageUrl} alt={`${item.plantId} 前視照片`} width={440} height={330} unoptimized />
+                        <span>前視照片</span>
+                      </a>
+                    )}
+                    {item.rightImageUrl && (
+                      <a className="sourceImageLink" href={item.rightImageUrl} target="_blank" rel="noreferrer">
+                        <Image src={item.rightImageUrl} alt={`${item.plantId} 右視照片`} width={440} height={330} unoptimized />
+                        <span>右視照片</span>
+                      </a>
+                    )}
+                  </div>
+                )}
+                {(item.gifUrl || item.analysisGifUrl || item.glbUrl || item.annotatedGlbUrl) && (
                   <div className="actionRow">
                     {item.gifUrl && <a className="smallButton" href={item.gifUrl} target="_blank" rel="noreferrer">查看 GIF</a>}
+                    {item.analysisGifUrl && <a className="smallButton" href={item.analysisGifUrl} target="_blank" rel="noreferrer">查看節點旋轉 GIF</a>}
                     {item.glbUrl && <a className="smallButton" href={item.glbUrl} target="_blank" rel="noreferrer">下載 GLB</a>}
+                    {item.annotatedGlbUrl && <a className="smallButton" href={item.annotatedGlbUrl} target="_blank" rel="noreferrer">下載標註 GLB</a>}
                   </div>
                 )}
               </>
