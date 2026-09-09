@@ -44,6 +44,15 @@ const retryModeText = {
   retry_pre_generate: '建立建模任務前失敗，將重新嘗試'
 };
 
+const uploadStatusText = {
+  'uploading:gifUrl': '正在上傳混元預覽 GIF',
+  'uploading:measurementUrl': '正在上傳分析 JSON',
+  'uploading:nodesCsvUrl': '正在上傳節點 CSV',
+  'uploading:analysisGifUrl': '正在上傳分析 GIF',
+  'uploading:annotatedGlbUrl': '正在上傳標註模型',
+  'uploading:glbUrl': '正在上傳主要模型'
+};
+
 function jobProgress(job) {
   if (job?.progress) return job.progress;
   if (job?.status === 'succeeded') return { phase: 'completed', overallPercent: 100 };
@@ -227,6 +236,16 @@ export function ModelingJobForm() {
                   <span className="recordMeta">第 {progress.attempt || 1}/{progress.maxAttempts || 2} 次嘗試</span>
                   {progress.phase === 'modeling' && Number.isInteger(progress.remotePercent) && (
                     <span className="recordMeta">混元建模 {progress.remotePercent}%</span>
+                  )}
+                  {progress.phase === 'uploading' && progress.remoteStatus && (
+                    <span className="recordMeta">
+                      {uploadStatusText[progress.remoteStatus] || '模型產物上傳中'}
+                    </span>
+                  )}
+                  {progress.phase === 'uploading' && progress.updatedAt && (
+                    <span className="recordMeta">
+                      最後更新 {new Date(progress.updatedAt).toLocaleTimeString('zh-TW')}
+                    </span>
                   )}
                   {progress.retryMode && <span className="recordMeta retryMeta">{retryModeText[progress.retryMode]}</span>}
                   {job.dataHubStatus && <span className="recordMeta">{dataHubStatusText[job.dataHubStatus] || `DataHub: ${job.dataHubStatus}`}</span>}
