@@ -143,3 +143,27 @@ gcloud scheduler jobs resume robot-camera-poll --location=<scheduler-region>
 ```
 
 Grant the Scheduler service account `roles/run.invoker` on the Cloud Run service. Treat the Scheduler custom header as a secret and restrict access to Scheduler job configuration. Keep `AUTO_CAPTURE_ENABLED=false` during initial deployment; resuming the enabled schedule allows future photo pairs to create paid Hunyuan generations.
+
+## Direct robot-arm upload
+
+`POST /api/modeling-jobs` accepts either a Firebase ID token for the web UI or
+`X-Internal-Task-Token` for the robot. Internal submissions are recorded as
+`automation:robot-arm` with `submissionSource=robot_camera`; clients do not send
+the calibration coefficient. The worker selects the protected
+`ROBOT_CAMERA_MODEL_TO_CM_SCALE=174.1084` value from that source profile.
+
+On the Orin, install `requests`, set the Cloud Run URL and shared token, then run:
+
+```bash
+pip3 install requests
+export SERVICE_URL="https://<cloud-run-service>"
+export INTERNAL_TASK_TOKEN="<shared-callback-token>"
+python3 tools/robot-arm-upload.py \
+  --plant-id C-1-1 \
+  --front /path/to/tm_vertical_<timestamp>_pos1_stitched.png \
+  --right /path/to/tm_vertical_<timestamp>_pos2_stitched.png
+```
+
+The six-image vertical scan has a different view convention from the legacy
+two-image poller: `pos1` is Front View and `pos2` is Right View. A successful
+command reports the accepted job ID and exits; modeling continues asynchronously.

@@ -1,5 +1,6 @@
 import { requireUser } from '@/lib/authServer';
 import { errorResponse, json } from '@/lib/http';
+import { requireInternalToken } from '@/lib/internalAuth';
 import { submitModelingJob } from '@/lib/modelingSubmission';
 import { getPlant, listActiveModelingJobs } from '@/lib/repositories';
 
@@ -27,15 +28,26 @@ async function imageData(file) {
   return { buffer: Buffer.from(await file.arrayBuffer()), name: file.name, type: file.type };
 }
 
+function isInternalTokenRequest(request) {
+  try {
+    requireInternalToken(request);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request) {
   try {
-    const user = await requireUser(request);
+    const internal = isInternalTokenRequest(request);
+    const user = internal ? { uid: 'automation:robot-arm', email: 'robot-arm@internal' } : await requireUser(request);
     const form = await request.formData();
     const plantId = String(form.get('plantId') || '').trim();
     const observedAt = String(form.get('observedAt') || '');
     const submissionKey = String(form.get('submissionKey') || '').trim();
     const front = form.get('front');
     const right = form.get('right');
+    const submissionSource = internal ? 'robot_camera' : 'manual';
     if (!plantId || !Number.isFinite(new Date(observedAt).getTime())) {
       const error = new Error('植株編號或觀測時間格式錯誤');
       error.status = 400;
@@ -60,7 +72,8 @@ export async function POST(request) {
       observedAt: new Date(observedAt).toISOString(),
       submissionKey,
       user,
-      images: { front: await imageData(front), right: await imageData(right) }
+      images: { front: await imageData(front), right: await imageData(right) },
+      submissionSource
     });
     return json({ job: result.job, replayed: result.replayed }, result.replayed ? 200 : 202);
   } catch (error) {
